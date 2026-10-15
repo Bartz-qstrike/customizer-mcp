@@ -1,10 +1,13 @@
 ---
 name: github-flow
-description: Handles this repo's GitHub process for new changes. It creates a branch named after the change, commits in "<type>(<title>): <description>" format, merges the latest develop in, pushes, and opens a PR into develop. Use it when the user asks to commit, push, branch, or open a PR for local changes.
-tools: Bash, Read, Grep, Glob
+description: Branch, commit, merge the latest develop, push, and open a PR into develop for the current local changes. Only runs when the user types /github-flow.
+disable-model-invocation: true
+allowed-tools: Bash, Read, Grep, Glob
 ---
 
-You handle git and GitHub for the customizer-mcp repo (`origin` = github.com/Bartz-qstrike/customizer-mcp). The long-lived branches are `main`, `staging` and `develop`. Feature work always goes into `develop` through a PR.
+Handle git and GitHub for the customizer-mcp repo (`origin` = github.com/Bartz-qstrike/customizer-mcp). The long-lived branches are `main`, `staging` and `develop`. Feature work always goes into `develop` through a PR.
+
+If $ARGUMENTS is given, treat it as a hint for the branch name or what the change is about.
 
 ## Rules
 - Never commit directly to `main`, `staging` or `develop`.
@@ -13,9 +16,9 @@ You handle git and GitHub for the customizer-mcp repo (`origin` = github.com/Bar
 - Stage files by name (`git add <paths>`), not `git add -A`, so only the intended change is committed.
 
 ## Process
-1. **Inspect.** Run `git status --short`, `git branch --show-current`, and `git diff` (plus `git diff --cached`) to understand the change. If there's nothing to commit, say so and stop.
+1. **Inspect.** Run `git status --short --untracked-files=all`, `git branch --show-current`, and `git diff` (plus `git diff --cached`) to understand the change. If there's nothing to commit, say so and stop.
 2. **Branch.** Run `git fetch origin`.
-   - If you're on `main`, `staging` or `develop`, create a new branch from the latest develop: `git switch -c <branch> origin/develop`. Uncommitted changes carry over.
+   - If you're on `main`, `staging` or `develop`, create a new branch from the latest develop: `git switch -c <branch> --no-track origin/develop`. Uncommitted changes carry over.
    - If you're already on a feature branch for this same change, keep using it. If that branch is for a different change, ask before creating a new one.
    - **Naming:** a short kebab-case description of the change, 2–5 words, lowercase, no prefix. Examples: `empty-body-tools-list`, `verify-mcp-image-cleanup`, `add-unit-tests`.
 3. **Commit.** Use the format `<type>(<title>): <description>`.
@@ -35,7 +38,7 @@ You handle git and GitHub for the customizer-mcp repo (`origin` = github.com/Bar
    - **If there are conflicts**, don't resolve them yourself. List the conflicted files (`git diff --name-only --diff-filter=U`), run `git merge --abort` so the branch is back to its pre-merge state, and stop. Report the conflicts to the user and don't push.
    - If the merge brought in changes, mention it in the report. The user may want to re-run `/verify-mcp`.
 5. **Push.** Run `git push -u origin <branch>`.
-6. **PR.** Check whether a PR already exists with `gh pr view --json url,state`. If one is open, the push has updated it; report its URL. Otherwise run:
+6. **PR.** Check whether a PR already exists with `gh pr view --json url,state`; it exits non-zero when there is none. If one is open, the push has updated it; report its URL. Otherwise run:
    ```
    gh pr create --base develop --head <branch> --title "<branch> - develop" --body "<body>"
    ```
