@@ -14,6 +14,7 @@ Connection settings are separate variables, not a `DATABASE_URL` (see `.env.exam
 | `DATABASE_PASSWORD` | _(empty)_   |
 | `DATABASE_NAME`     | required    |
 | `PORT`              | `3000`      |
+| `MCP_AUTH_TOKEN`    | _(empty)_ — see [Authentication](#authentication) |
 
 - The app connects through `@prisma/adapter-mariadb` using these values directly (`src/prisma/prisma.service.ts`).
 - The Prisma CLI gets a connection string that `prisma.config.ts` builds from the same values (`src/database.config.ts`).
@@ -45,11 +46,34 @@ The container connects to the MySQL server running on your host through `host.do
 
 `query` runs inside a `START TRANSACTION READ ONLY` transaction that is always rolled back, so MySQL rejects any write.
 
+## Authentication
+
+`/mcp` requires `Authorization: Bearer <MCP_AUTH_TOKEN>`. Missing or wrong tokens get `401` with a `WWW-Authenticate: Bearer` header. Generate a token with `openssl rand -hex 32` and put it in `.env`.
+
+If `MCP_AUTH_TOKEN` is empty, `/mcp` accepts unauthenticated requests and the server logs a warning at startup. `GET /health` is always public.
+
 To connect from Claude Code:
 
 ```bash
-claude mcp add --transport http customizer http://localhost:3000/mcp
+claude mcp add --transport http customizer http://localhost:3000/mcp \
+  --header "Authorization: Bearer <token>"
 ```
+
+To connect from Claude Desktop, add this to `claude_desktop_config.json`. `mcp-remote` bridges Claude Desktop to the HTTP endpoint.
+
+```json
+{
+  "mcpServers": {
+    "customizer-mcp": {
+      "command": "npx",
+      "args": ["-y", "mcp-remote", "http://localhost:3000/mcp", "--header", "Authorization:${AUTH_HEADER}"],
+      "env": { "AUTH_HEADER": "Bearer <token>" }
+    }
+  }
+}
+```
+
+In Postman, open the **Authorization** tab, choose **Bearer Token**, and paste the token.
 
 ## Schema
 

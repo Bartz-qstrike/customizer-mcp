@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
+import { BearerAuthGuard } from '../auth/bearer-auth.guard.js';
 import { McpController } from './mcp.controller.js';
 import { McpService } from './mcp.service.js';
 import { ReadOnlySqlService } from './read-only-sql.service.js';
 
 @Module({
   controllers: [McpController],
-  providers: [McpService, ReadOnlySqlService],
+  providers: [McpService, ReadOnlySqlService, BearerAuthGuard],
 })
 export class McpModule {}
