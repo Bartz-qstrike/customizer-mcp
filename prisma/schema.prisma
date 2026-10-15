@@ -1,0 +1,3278 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../src/generated/prisma"
+  moduleFormat = "esm"
+}
+
+datasource db {
+  provider = "mysql"
+}
+
+model additional_product_lines {
+  id                           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  master_product_line_id       BigInt    @db.UnsignedBigInt
+  additional_product_line_name String    @db.VarChar(255)
+  deleted_at                   DateTime? @db.Timestamp(0)
+  created_at                   DateTime? @db.Timestamp(0)
+  updated_at                   DateTime? @db.Timestamp(0)
+}
+
+model admin_categories {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  order_category String    @db.VarChar(255)
+  deleted_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model alternative_product_tiers {
+  id                       BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  master_product_tier_id   BigInt    @db.UnsignedBigInt
+  alternative_product_tier String    @db.VarChar(255)
+  created_at               DateTime? @db.Timestamp(0)
+  updated_at               DateTime? @db.Timestamp(0)
+  deleted_at               DateTime? @db.Timestamp(0)
+}
+
+model application_configuration {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  block_pattern_id  Int
+  application_types String?   @db.Text
+  perspectives      String?   @db.Text
+  body_parts        String?   @db.Text
+  deleted_at        DateTime? @db.Timestamp(0)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+}
+
+model application_method_color_groups_by_brand {
+  id                           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_ids                    String?   @db.Text
+  standard_color_ids           String?   @db.Text
+  secondary_color_ids          String?   @db.Text
+  factory_ids                  String?   @db.Text
+  application_method_ids       String?   @db.Text
+  website_team_color_info_file String?   @db.LongText
+  deleted_at                   DateTime? @db.Timestamp(0)
+  created_at                   DateTime? @db.Timestamp(0)
+  updated_at                   DateTime? @db.Timestamp(0)
+  color_set_id                 Int?
+}
+
+model application_method_group {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name                String    @db.VarChar(100)
+  application_methods Json?
+  default             BigInt?
+  deleted_at          DateTime? @db.Timestamp(0)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+}
+
+model application_tokens {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  dealer_id          Int
+  master_brand_id    Int
+  app_name           String    @db.VarChar(255)
+  app_domain         String    @db.VarChar(255)
+  email              String?   @db.VarChar(255)
+  abilities          String?   @db.Text
+  client_id          String    @unique(map: "application_tokens_client_id_unique") @db.VarChar(26)
+  secret_key         String    @db.VarChar(60)
+  rate_limit         Int       @default(0)
+  request_count      BigInt    @default(0)
+  last_used_at       DateTime? @db.Timestamp(0)
+  expires_at         DateTime? @db.Timestamp(0)
+  revoked_at         DateTime? @db.Timestamp(0)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+  status             Int       @default(1)
+  deleted_at         DateTime? @db.Timestamp(0)
+  callback_url       String?   @db.LongText
+  bearer_token       String?   @db.LongText
+  grant_type         String?   @db.VarChar(255)
+  access_token_url   String?   @db.LongText
+  webhook_client_id  String?   @db.VarChar(255)
+  webhook_secret     String?   @db.VarChar(255)
+  server_environment Json?
+
+  @@index([app_domain], map: "application_tokens_app_domain_index")
+  @@index([client_id], map: "application_tokens_client_id_index")
+  @@index([dealer_id], map: "application_tokens_dealer_id_index")
+  @@index([master_brand_id], map: "application_tokens_master_brand_id_index")
+  @@index([status], map: "application_tokens_status_index")
+}
+
+model applications {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  application String?   @db.VarChar(255)
+  deleted_at  DateTime? @db.Timestamp(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model approved_cmyk_colors {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id    Int?
+  factory_id  Int?
+  fabric_code String?   @db.VarChar(255)
+  printers    Json?
+  cmyk_colors String?   @db.LongText
+  user_id     Int?
+  deleted_at  DateTime? @db.Timestamp(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model avg_item_difficulty_values {
+  id               BigInt                           @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id       Int                              @db.UnsignedInt
+  sport_id         Int                              @db.UnsignedInt
+  type             avg_item_difficulty_values_type?
+  difficulty_value Float
+  deleted_at       DateTime?                        @db.Timestamp(0)
+  created_at       DateTime?                        @db.Timestamp(0)
+  updated_at       DateTime?                        @db.Timestamp(0)
+  line_group       Int?                             @default(0)
+  master_factory   master_factory                   @relation(fields: [factory_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "avg_item_difficulty_values_factory_id_foreign")
+  master_sports    master_sports                    @relation(fields: [sport_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "avg_item_difficulty_values_sport_id_foreign")
+
+  @@index([factory_id], map: "avg_item_difficulty_values_factory_id_foreign")
+  @@index([sport_id], map: "avg_item_difficulty_values_sport_id_foreign")
+}
+
+model background_image_brands {
+  id                  BigInt         @id @default(autoincrement()) @db.UnsignedBigInt
+  image_file_name     String?        @db.VarChar(255)
+  background_image_id Int?
+  brand_id            Int?           @db.UnsignedInt
+  created_at          DateTime?      @db.Timestamp(0)
+  updated_at          DateTime?      @db.Timestamp(0)
+  master_brands       master_brands? @relation(fields: [brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "background_image_brands_brand_id_foreign")
+
+  @@index([brand_id], map: "background_image_brands_brand_id_foreign")
+}
+
+model background_images {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  original_filename String?   @db.LongText
+  file_path         String?   @db.LongText
+  status            Boolean   @default(false)
+  created_by        Int?
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  deleted_at        DateTime? @db.Timestamp(0)
+}
+
+model black_out_dates {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id Int
+  year       Int
+  month      Int
+  day        Int
+  full_date  DateTime  @db.Date
+  active     Int
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model block_pattern_brand_rule_reversibles {
+  id                          BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  block_pattern_brand_rule_id BigInt @db.UnsignedBigInt
+  trim_type_id                Int    @db.UnsignedInt
+  side_option                 String @db.VarChar(255)
+}
+
+model block_pattern_brand_rule_trims {
+  id                          Int    @id @default(autoincrement()) @db.UnsignedInt
+  block_pattern_brand_rule_id BigInt @db.UnsignedBigInt
+  brand_trim_id               BigInt @db.UnsignedBigInt
+}
+
+model block_pattern_brand_rules {
+  id                               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_name                     String?   @db.VarChar(150)
+  block_pattern_rule_id            Int?      @db.UnsignedInt
+  brand_id                         Int?      @db.UnsignedInt
+  product_line_id                  Int?      @db.UnsignedInt
+  price_item_id                    Int?      @db.UnsignedInt
+  size_group_id                    Int?      @db.UnsignedInt
+  max_applications                 Int?      @db.UnsignedInt
+  unlimited                        Boolean   @default(false)
+  brand_logo_application_locations Json?
+  twill_fabric_rules               Json?
+  body_part_fabric_groups          Json?
+  body_part_color_groups           Json?
+  rush_available                   Boolean   @default(false)
+  rush_levels                      String?   @db.LongText
+  fit_intent_id                    Int?
+  decoration_group_id              Int?
+  roster_group_id                  Int?      @db.UnsignedInt
+  created_by                       Int?      @db.UnsignedInt
+  active                           Boolean   @default(true)
+  complete                         Boolean   @default(true)
+  application_groups               Json?
+  deleted_at                       DateTime? @db.Timestamp(0)
+  created_at                       DateTime? @db.Timestamp(0)
+  updated_at                       DateTime? @db.Timestamp(0)
+  product_features                 String?   @db.LongText
+  minimum_allowed                  Int       @default(0)
+  add_ons                          String?   @db.LongText
+  brand_trims                      Json?
+  brand_rosters                    Json?
+  youth_price_item                 Int?      @db.UnsignedInt
+  sport_ids                        String?   @db.LongText
+  style_category_ids               String?   @db.LongText
+  default_view                     Json?
+  default_application_location     Json?
+  sport_product_info               Json?
+  product_features_category        Json?
+  brand_color_set_id               Int?      @default(0)
+  default_picker_view_id           Int?      @default(0)
+  body_part_color_group_status     Int       @default(1) @db.TinyInt
+
+  @@index([block_pattern_rule_id], map: "block_pattern_brand_rules_block_pattern_rule_id_index")
+  @@index([brand_id], map: "block_pattern_brand_rules_brand_id_index")
+  @@index([created_by], map: "block_pattern_brand_rules_created_by_index")
+  @@index([decoration_group_id], map: "block_pattern_brand_rules_decoration_group_id_index")
+  @@index([deleted_at], map: "block_pattern_brand_rules_deleted_at_index")
+  @@index([fit_intent_id], map: "block_pattern_brand_rules_fit_intent_id_index")
+  @@index([price_item_id], map: "block_pattern_brand_rules_price_item_id_index")
+  @@index([product_line_id], map: "block_pattern_brand_rules_product_line_id_index")
+  @@index([roster_group_id], map: "block_pattern_brand_rules_roster_group_id_index")
+  @@index([rush_available], map: "block_pattern_brand_rules_rush_available_index")
+  @@index([size_group_id], map: "block_pattern_brand_rules_size_group_id_index")
+  @@index([unlimited], map: "block_pattern_brand_rules_unlimited_index")
+  @@index([youth_price_item], map: "block_pattern_brand_rules_youth_price_item_index")
+  @@fulltext([product_name], map: "product_name")
+}
+
+model block_pattern_rule_available_product_views {
+  id                    BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  block_pattern_rule_id BigInt              @db.UnsignedBigInt
+  product_view_id       Int                 @db.UnsignedInt
+  created_at            DateTime?           @db.Timestamp(0)
+  updated_at            DateTime?           @db.Timestamp(0)
+  block_pattern_rules   block_pattern_rules @relation(fields: [block_pattern_rule_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_bpr_av_prv_bpr_id")
+  product_views         product_views       @relation(fields: [product_view_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_bpr_av_prv_pv_id")
+
+  @@index([block_pattern_rule_id], map: "fk_bpr_av_prv_bpr_id")
+  @@index([product_view_id], map: "fk_bpr_av_prv_pv_id")
+}
+
+model block_pattern_rules {
+  id                                                           BigInt                                       @id @default(autoincrement()) @db.UnsignedBigInt
+  block_pattern_name                                           String?                                      @db.VarChar(150)
+  master_block_code                                            String?                                      @db.VarChar(255)
+  spec_sheet_id                                                Int?                                         @db.UnsignedInt
+  factory_id                                                   Int?                                         @db.UnsignedInt
+  primary_sport_id                                             Int?                                         @db.UnsignedInt
+  application_type_id                                          Int?                                         @db.UnsignedInt
+  style_category_id                                            Int?                                         @db.UnsignedInt
+  fit_intent_id                                                Int?
+  filter_flags                                                 Json?
+  master_3d_block_pattern_id                                   Int?                                         @db.UnsignedInt
+  block_definitions                                            String?                                      @db.LongText
+  block_pattern_rule_reference                                 Int?                                         @db.UnsignedInt
+  rule_reference                                               Int?                                         @db.UnsignedInt
+  created_by                                                   Int?                                         @db.UnsignedInt
+  deleted_at                                                   DateTime?                                    @db.Timestamp(0)
+  created_at                                                   DateTime?                                    @db.Timestamp(0)
+  updated_at                                                   DateTime?                                    @db.Timestamp(0)
+  material_id                                                  Int                                          @default(0)
+  max_applications                                             Int?                                         @db.UnsignedInt
+  unlimited                                                    Boolean                                      @default(false)
+  body_parts                                                   Json?
+  body_part_fabric_groups                                      Json?
+  body_part_color_groups                                       Json?
+  brand_logo_application_locations                             Json?
+  twill_fabric_rules                                           Json?
+  decoration_group_id                                          Int?
+  application_groups                                           Json?
+  status                                                       Boolean                                      @default(true)
+  moq                                                          Int                                          @default(1)
+  roster_group_id                                              Int?
+  max_pipings                                                  Int?
+  allowed_piping_locations                                     Json?
+  reversible                                                   Int                                          @default(0) @db.TinyInt
+  patterns_percentage                                          String?                                      @db.LongText
+  style_category_ids                                           String?                                      @db.LongText
+  default_view                                                 Json?
+  notes                                                        Json?
+  status_new                                                   String?                                      @db.Text
+  webQA_assignee                                               Int?                                         @db.UnsignedInt
+  webGA_assignee                                               Int?                                         @db.UnsignedInt
+  data_specialist_assignee_id                                  Int?                                         @db.UnsignedInt
+  default_picker_view_id                                       BigInt                                       @db.UnsignedBigInt
+  max_applications_location                                    Int
+  is_max_applications_location                                 Boolean
+  block_pattern_rule_available_product_views                   block_pattern_rule_available_product_views[]
+  users_block_pattern_rules_data_specialist_assignee_idTousers users?                                       @relation("block_pattern_rules_data_specialist_assignee_idTousers", fields: [data_specialist_assignee_id], references: [id], onUpdate: NoAction, map: "block_pattern_rules_data_specialist_assignee_id_foreign")
+  users_block_pattern_rules_webGA_assigneeTousers              users?                                       @relation("block_pattern_rules_webGA_assigneeTousers", fields: [webGA_assignee], references: [id], onUpdate: NoAction, map: "block_pattern_rules_webga_assignee_foreign")
+  users_block_pattern_rules_webQA_assigneeTousers              users?                                       @relation("block_pattern_rules_webQA_assigneeTousers", fields: [webQA_assignee], references: [id], onUpdate: NoAction, map: "block_pattern_rules_webqa_assignee_foreign")
+
+  @@index([application_type_id], map: "block_pattern_rules_application_type_id_index")
+  @@index([created_by], map: "block_pattern_rules_created_by_index")
+  @@index([data_specialist_assignee_id], map: "block_pattern_rules_data_specialist_assignee_id_foreign")
+  @@index([deleted_at], map: "block_pattern_rules_deleted_at_index")
+  @@index([factory_id], map: "block_pattern_rules_factory_id_index")
+  @@index([master_3d_block_pattern_id], map: "block_pattern_rules_master_3d_block_pattern_id_index")
+  @@index([material_id], map: "block_pattern_rules_material_id_index")
+  @@index([primary_sport_id], map: "block_pattern_rules_primary_sport_id_index")
+  @@index([spec_sheet_id], map: "block_pattern_rules_spec_sheet_id_index")
+  @@index([status], map: "block_pattern_rules_status_index")
+  @@index([style_category_id], map: "block_pattern_rules_style_category_id_index")
+  @@index([webGA_assignee], map: "block_pattern_rules_webga_assignee_foreign")
+  @@index([webQA_assignee], map: "block_pattern_rules_webqa_assignee_foreign")
+  @@fulltext([block_pattern_name], map: "block_pattern_name")
+}
+
+model brand_allotments {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  month      Int
+  year       Int
+  factory    Int
+  allotments Json
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model brand_allotments_consumed {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id   Int
+  brand_id     Int
+  order_code   String?   @db.VarChar(255)
+  order_id     String?   @db.VarChar(255)
+  full_date    DateTime  @db.Date
+  consumed_qty Int
+  user_id      Int
+  active       Boolean   @default(true)
+  deleted_at   DateTime? @db.Timestamp(0)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  type         Int       @default(0) @db.TinyInt
+  desired_date DateTime? @db.Date
+
+  @@index([order_id], map: "brand_allotments_consumed_order_id_index")
+  @@index([user_id], map: "brand_allotments_consumed_user_id_index")
+}
+
+model brand_block_body_part_fabric_groups {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_block_id     Int
+  fabric_by_brand_id Int
+  color_by_brand_id  Int
+  is_twill           Boolean
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+}
+
+model brand_block_pattern_rule_fabric_colors {
+  id                          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_block_pattern_rule_id Int?
+  block_pattern_rule_id       Int?
+  master_fabric_id            Int?
+  master_fabric_ba_id         Int?
+  master_color_id             Int?
+  color_processing_id         Int?
+  thumbnail_type              String?   @db.VarChar(255)
+  hex_code                    String?   @db.VarChar(255)
+  thumbnail_image             String?   @db.VarChar(255)
+  is_active                   Int       @default(0) @db.TinyInt
+  created_at                  DateTime? @db.Timestamp(0)
+  updated_at                  DateTime? @db.Timestamp(0)
+  deleted_at                  DateTime? @db.Timestamp(0)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model brand_item_code_master_sizes {
+  id                 BigInt @db.UnsignedBigInt
+  brand_item_code_id BigInt @db.UnsignedBigInt
+  master_size_id     BigInt @db.UnsignedBigInt
+
+  @@ignore
+}
+
+model brand_item_codes {
+  id              BigInt @db.UnsignedBigInt
+  brand_item_code String @unique(map: "brand_item_code") @db.VarChar(255)
+
+  @@index([brand_item_code], map: "brand_item_codes_brand_item_code_index")
+}
+
+model brand_offices {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id           Int?
+  default_store      Int?
+  office_name        String?   @db.VarChar(255)
+  shipping_email     String?   @db.VarChar(255)
+  shipping_phone     String?   @db.VarChar(255)
+  zip_code           String?   @db.VarChar(255)
+  country            String?   @db.VarChar(255)
+  country_full_name  String?   @db.VarChar(255)
+  state              String?   @db.VarChar(255)
+  state_full_name    String?   @db.VarChar(255)
+  city               String?   @db.VarChar(255)
+  shipping_address_1 String?   @db.VarChar(255)
+  shipping_address_2 String?   @db.VarChar(255)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+  deleted_at         DateTime? @db.Timestamp(0)
+}
+
+model brand_order_data_import {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_name              String    @db.VarChar(50)
+  team_name               String    @db.VarChar(50)
+  collection_id           String    @db.VarChar(255)
+  order_number            String    @db.VarChar(100)
+  online_order_number     String    @db.VarChar(100)
+  product_code            String    @db.VarChar(100)
+  product_description     String    @db.VarChar(255)
+  cad_id                  String    @db.VarChar(100)
+  manufacturing_design_id Int
+  order_date              String    @db.VarChar(255)
+  factory_date            String    @db.VarChar(255)
+  order_status            String    @db.VarChar(255)
+  total_orders            Int
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+  deleted_at              DateTime? @db.Timestamp(0)
+
+  @@index([cad_id], map: "brand_order_data_import_cad_id_index")
+  @@index([collection_id], map: "brand_order_data_import_collection_id_index")
+  @@index([factory_date], map: "brand_order_data_import_factory_date_index")
+  @@index([manufacturing_design_id], map: "brand_order_data_import_manufacturing_design_id_index")
+  @@index([online_order_number], map: "brand_order_data_import_online_order_number_index")
+  @@index([order_date], map: "brand_order_data_import_order_date_index")
+  @@index([order_number], map: "brand_order_data_import_order_number_index")
+  @@index([order_status], map: "brand_order_data_import_order_status_index")
+}
+
+model brand_patterns {
+  id                 BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_pattern_id Int?             @db.UnsignedInt
+  brand_id           Int?             @db.UnsignedInt
+  brand_pattern_name String?          @db.VarChar(255)
+  factory_ids        Json?
+  product_line_ids   Json?
+  deleted_at         DateTime?        @db.Timestamp(0)
+  created_at         DateTime?        @db.Timestamp(0)
+  updated_at         DateTime?        @db.Timestamp(0)
+  sports             Json?
+  customizer_id      Int?
+  sort_order         Int?
+  master_brands      master_brands?   @relation(fields: [brand_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "brand_patterns_brand_id_foreign")
+  master_patterns    master_patterns? @relation(fields: [factory_pattern_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "brand_patterns_factory_pattern_id_foreign")
+
+  @@index([brand_id], map: "brand_patterns_brand_id_foreign")
+  @@index([factory_pattern_id], map: "brand_patterns_factory_pattern_id_foreign")
+}
+
+model brand_process_by_factory {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id           Int       @default(0)
+  factory_id         Int       @default(0)
+  processes_by_brand String?   @db.Text
+  deleted_at         DateTime? @db.Timestamp(0)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+}
+
+model brand_sizes {
+  id              BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  master_size_id  BigInt            @db.UnsignedBigInt
+  brand_size_code String            @db.VarChar(255)
+  brand_size_name String            @db.VarChar(255)
+  size_category   String            @db.VarChar(255)
+  created_at      DateTime?         @db.Timestamp(0)
+  updated_at      DateTime?         @db.Timestamp(0)
+  deleted_at      DateTime?         @db.Timestamp(0)
+  sizes_by_brands sizes_by_brands[]
+
+  @@index([master_size_id], map: "brand_sizes_master_size_id_foreign")
+}
+
+model brand_sports {
+  id                       Int            @id @default(autoincrement()) @db.UnsignedInt
+  brand_id                 Int?           @db.UnsignedInt
+  sport_id                 Int?           @db.UnsignedInt
+  gender_ids               String?        @db.Text
+  deleted_at               DateTime?      @db.Timestamp(0)
+  created_at               DateTime?      @db.Timestamp(0)
+  updated_at               DateTime?      @db.Timestamp(0)
+  sport_gender_category    String?        @db.LongText
+  sport_name               Int?
+  sort_order               Int?
+  icon_name                String?        @db.VarChar(255)
+  icon_url                 String?        @db.VarChar(255)
+  master_style_category_id Int?           @db.UnsignedInt
+  status                   Boolean        @default(true)
+  master_brands            master_brands? @relation(fields: [brand_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "brand_sports_brand_id_foreign")
+  master_sports            master_sports? @relation(fields: [sport_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "brand_sports_sport_id_foreign")
+
+  @@index([brand_id], map: "brand_sports_brand_id_foreign")
+  @@index([master_style_category_id], map: "brand_sports_master_style_category_id_foreign")
+  @@index([sport_id], map: "brand_sports_sport_id_foreign")
+}
+
+model brand_style_qstrike_item_id_and_sizes {
+  id              BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_style_id  BigInt       @db.UnsignedBigInt
+  brand_item_code String?      @db.VarChar(255)
+  qstrike_item_id Int?
+  sizes           Json?
+  created_at      DateTime?    @db.Timestamp(0)
+  updated_at      DateTime?    @db.Timestamp(0)
+  deleted_at      DateTime?    @db.Timestamp(0)
+  brand_styles    brand_styles @relation(fields: [brand_style_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "brand_style_qstrike_item_id_and_sizes_brand_style_id_foreign")
+
+  @@index([brand_style_id], map: "brand_style_qstrike_item_id_and_sizes_brand_style_id_foreign")
+}
+
+model brand_styles {
+  id                                    BigInt                                  @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_style_name                      String?                                 @db.VarChar(255)
+  style_request_id                      Int                                     @default(0)
+  brand_id                              Int                                     @default(0)
+  branded_customizer_style_id           Int                                     @default(0)
+  vendor_style_id_youth                 String?                                 @db.VarChar(255)
+  vendor_style_id_adult                 String?                                 @db.VarChar(255)
+  thumbnail_instructions                String?                                 @db.LongText
+  tag_expiry_date                       DateTime?                               @db.Date
+  qstrike_item_id                       Json?
+  body_part_color_groups                Json?
+  complete                              Int?
+  created_at                            DateTime?                               @db.Timestamp(0)
+  updated_at                            DateTime?                               @db.Timestamp(0)
+  deleted_at                            DateTime?                               @db.Timestamp(0)
+  body_part_group_default_colors        Json?
+  trims_default_colors                  Json?
+  piping_default_colors                 Json?
+  master_style_piping                   Int                                     @default(0) @db.TinyInt
+  product_views                         Json?
+  front_thumbnail                       String?                                 @db.LongText
+  back_thumbnail                        String?                                 @db.LongText
+  right_thumbnail                       String?                                 @db.LongText
+  left_thumbnail                        String?                                 @db.LongText
+  top_thumbnail                         String?                                 @db.LongText
+  front_reversible_thumbnail            String?                                 @db.LongText
+  left_reversible_thumbnail             String?                                 @db.LongText
+  default_patterns                      Json?
+  default_applications                  Json?
+  customizer_available                  Int                                     @default(0) @db.TinyInt
+  sort_order                            Int                                     @default(0)
+  sport_ids                             String?                                 @db.LongText
+  sport_category_productline            String?                                 @db.LongText
+  sport_product_info                    Json?
+  brand_block_id                        BigInt?                                 @db.UnsignedBigInt
+  style_part_color_group_status         Int                                     @default(0)
+  allow_manual_order                    Boolean                                 @default(false)
+  brand_style_qstrike_item_id_and_sizes brand_style_qstrike_item_id_and_sizes[]
+
+  @@index([brand_block_id], map: "brand_block_id_index")
+  @@index([brand_id], map: "brand_styles_brand_id_index")
+  @@index([branded_customizer_style_id], map: "brand_styles_branded_customizer_style_id_index")
+  @@index([complete], map: "brand_styles_complete_index")
+  @@index([customizer_available], map: "brand_styles_customizer_available_index")
+  @@index([deleted_at], map: "brand_styles_deleted_at_index")
+  @@index([sort_order], map: "brand_styles_sort_order_index")
+  @@index([style_request_id], map: "brand_styles_style_request_id_index")
+  @@fulltext([brand_style_name], map: "brand_style_name")
+}
+
+model brand_trims {
+  id                BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  trim_id           Int?            @db.UnsignedInt
+  brand_id          Int?            @db.UnsignedInt
+  factory_id        Int?            @db.UnsignedInt
+  brand_trim_name   String?         @db.VarChar(255)
+  image             String?         @db.VarChar(255)
+  deleted_at        DateTime?       @db.Timestamp(0)
+  created_at        DateTime?       @db.Timestamp(0)
+  updated_at        DateTime?       @db.Timestamp(0)
+  trim_type_id      Int             @default(0)
+  tis               String?         @db.VarChar(255)
+  trim_by_color_id  Int             @default(0)
+  brand_id_multiple String?         @db.LongText
+  brand_colors      String?         @db.LongText
+  master_brands     master_brands?  @relation(fields: [brand_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "brand_trims_brand_id_foreign")
+  master_factory    master_factory? @relation(fields: [factory_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "brand_trims_factory_id_foreign")
+  master_trims      master_trims?   @relation(fields: [trim_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "brand_trims_trim_id_foreign")
+
+  @@index([brand_id], map: "brand_trims_brand_id_foreign")
+  @@index([factory_id], map: "brand_trims_factory_id_foreign")
+  @@index([trim_id], map: "brand_trims_trim_id_foreign")
+}
+
+model brand_user {
+  id                       Int       @id @default(autoincrement()) @db.UnsignedInt
+  brand_id                 BigInt    @db.UnsignedBigInt
+  user_id                  BigInt    @db.UnsignedBigInt
+  position_id              Int?      @db.UnsignedInt
+  reports_to_brand_user_id Int?      @db.UnsignedInt
+  specialty_sports         String?   @db.LongText
+  office_phone             String?   @db.VarChar(255)
+  office_phone_ext         String?   @db.VarChar(255)
+  office_location          Int?
+  cphone                   String?   @db.VarChar(255)
+  all                      Boolean   @default(false)
+  tracking                 Boolean   @default(false)
+  place_order              Boolean   @default(false)
+  pricing_area             Boolean   @default(false)
+  stats_area               Boolean   @default(false)
+  stats_individual         Boolean   @default(false)
+  pricing_individual       Boolean   @default(false)
+  stats_organization       Boolean   @default(false)
+  pricing_organization     Boolean   @default(false)
+  created_at               DateTime? @db.Timestamp(0)
+  updated_at               DateTime? @db.Timestamp(0)
+
+  @@index([brand_id, user_id], map: "brand_user_brand_id_user_id_index")
+}
+
+model brands {
+  id                         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id                   Int?
+  name                       String?   @db.VarChar(255)
+  contact                    String?   @db.VarChar(255)
+  billing_contact            String?   @db.VarChar(255)
+  email                      String?   @db.VarChar(255)
+  billing_phone              String?   @db.VarChar(255)
+  country                    String?   @db.VarChar(255)
+  state                      String?   @db.VarChar(255)
+  city                       String?   @db.VarChar(255)
+  zip_code                   String?   @db.VarChar(255)
+  billing_address_1          String?   @db.VarChar(255)
+  billing_address_2          String?   @db.VarChar(255)
+  assigned_brand_manager     String?   @db.VarChar(255)
+  brand_terms                String?   @db.VarChar(255)
+  price_level                String?   @db.VarChar(255)
+  office_properties          Json?
+  web_details_and_contact_us Json?
+  web_footer_icon            Json?
+  email_footer_icon          Json?
+  user_properties            Json?
+  user_hierarchy             Json?
+  user_permission            Json?
+  brand_area_properties      Json?
+  automated_email            Json?
+  active                     Boolean   @default(true)
+  created_at                 DateTime? @db.Timestamp(0)
+  updated_at                 DateTime? @db.Timestamp(0)
+  deleted_at                 DateTime? @db.Timestamp(0)
+  order_sending_method       Json?
+  customizer_feature_ids     String?   @db.LongText
+}
+
+model brands_customizer_features {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  customizer_feature_id BigInt    @db.UnsignedBigInt
+  brand_dealer_id       BigInt    @db.UnsignedBigInt
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+}
+
+model color_by_brand_thumbnails {
+  id                 Int       @id @default(autoincrement()) @db.UnsignedInt
+  thumbnailable_id   String?   @db.VarChar(255)
+  thumbnailable_type String    @db.VarChar(255)
+  path               String?   @db.VarChar(255)
+  thumbnail_name     String?   @db.VarChar(255)
+  thumbnail_size     String?   @db.VarChar(255)
+  color_by_brand_id  BigInt?   @db.UnsignedBigInt
+  deleted_at         DateTime? @db.Timestamp(0)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+}
+
+model color_groupables {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  groupable_id        BigInt?   @db.UnsignedBigInt
+  color_by_brand_id   BigInt?   @db.UnsignedBigInt
+  groupable_type      String    @db.VarChar(255)
+  color_display_order String?   @db.VarChar(255)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+}
+
+model color_sets {
+  id            Int            @id @default(autoincrement()) @db.UnsignedInt
+  brand_id      Int?           @db.UnsignedInt
+  name          String?        @db.VarChar(75)
+  uniform_type  String?        @db.VarChar(75)
+  colors        String?        @db.Text
+  active        Boolean?       @default(false)
+  deleted_at    DateTime?      @db.Timestamp(0)
+  created_at    DateTime?      @db.Timestamp(0)
+  updated_at    DateTime?      @db.Timestamp(0)
+  master_brands master_brands? @relation(fields: [brand_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "color_sets_brand_id_foreign")
+
+  @@index([brand_id], map: "color_sets_brand_id_foreign")
+}
+
+model colors {
+  id                Int            @id @default(autoincrement()) @db.UnsignedInt
+  master_color_id   Int?           @db.UnsignedInt
+  brand_id          Int?           @db.UnsignedInt
+  color_code        String?        @db.VarChar(75)
+  color_alias       String?        @db.VarChar(250)
+  deleted_at        DateTime?      @db.Timestamp(0)
+  created_at        DateTime?      @db.Timestamp(0)
+  updated_at        DateTime?      @db.Timestamp(0)
+  web_hex_code      String?        @db.VarChar(75)
+  thumbnail         String?        @db.VarChar(255)
+  image_file        String?        @db.VarChar(255)
+  type              String?        @default("regular") @db.VarChar(255)
+  sort_order        Int            @default(0)
+  active_status     Int?           @default(0)
+  is_tonal          Int            @default(0) @db.TinyInt
+  has_a_tonal_color Int            @default(0) @db.TinyInt
+  tonal_color_id    Int?
+  closest_to        String?        @db.VarChar(255)
+  core_color        Boolean        @default(false)
+  master_brands     master_brands? @relation(fields: [brand_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "colors_brand_id_foreign")
+  master_colors     master_colors? @relation(fields: [master_color_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "colors_master_color_id_foreign")
+
+  @@index([brand_id], map: "colors_brand_id_foreign")
+  @@index([master_color_id], map: "colors_master_color_id_foreign")
+}
+
+model customer_service {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  date             String    @db.Text
+  order_id         String?   @db.VarChar(255)
+  part_number      String?   @db.VarChar(255)
+  customer         String?   @db.VarChar(255)
+  brand_id         Int
+  dealer_name      String?   @db.VarChar(255)
+  dealer_contact   String?   @db.VarChar(255)
+  assigned_to      Int?
+  item_description String?   @db.VarChar(255)
+  category         Int
+  note             String    @db.LongText
+  details          String?   @db.VarChar(255)
+  file_name        String?   @db.VarChar(255)
+  file_url         String?   @db.VarChar(255)
+  status           String    @db.VarChar(255)
+  history          Json
+  notes            Json
+  deleted_at       DateTime? @db.Timestamp(0)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  factory_code     String?   @db.VarChar(255)
+  ticket_no        String?   @db.VarChar(255)
+  dealer_id        Int?
+  users_ids        Json?
+  file_info        Json?
+}
+
+model customer_service_categories {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  category   String    @db.VarChar(255)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model dealer_brands {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  dealer_id  BigInt    @db.UnsignedBigInt
+  brand_id   BigInt    @db.UnsignedBigInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model dealers {
+  id                          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name                        String?   @db.VarChar(255)
+  contact                     String?   @db.VarChar(255)
+  billing_contact             String?   @db.VarChar(255)
+  email                       String?   @db.VarChar(255)
+  billing_phone               String?   @db.VarChar(255)
+  country                     String?   @db.VarChar(255)
+  state                       String?   @db.VarChar(255)
+  city                        String?   @db.VarChar(255)
+  zip_code                    String?   @db.VarChar(255)
+  billing_address_1           String?   @db.VarChar(255)
+  billing_address_2           String?   @db.VarChar(255)
+  assigned_product_pro        String?   @db.VarChar(255)
+  dealer_terms                String?   @db.VarChar(255)
+  price_level                 String?   @db.VarChar(255)
+  store_properties            Json?
+  user_properties             Json?
+  user_hierarchy              Json?
+  user_permission             Json?
+  team_dealer_area_properties Json?
+  created_at                  DateTime? @db.Timestamp(0)
+  updated_at                  DateTime? @db.Timestamp(0)
+  deleted_at                  DateTime? @db.Timestamp(0)
+  active                      Boolean   @default(true)
+  logo                        String?   @db.VarChar(255)
+  brand_id                    Int?      @db.SmallInt
+  brand_ids                   String?   @db.LongText
+  brand_terms                 String?   @db.LongText
+  merged_id                   Int       @default(0)
+}
+
+model decoration_type_by_brands {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_ids             String?   @db.Text
+  application_type_id   Int?      @default(0)
+  image                 String?   @db.VarChar(255)
+  description           String?   @db.Text
+  deleted_at            DateTime? @db.Timestamp(0)
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+  application_method    Json?
+  application_method_id String?   @db.VarChar(255)
+
+  @@index([application_type_id], map: "decoration_type_by_brands_application_type_id_index")
+}
+
+model decorations_groups {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name             String?   @db.VarChar(255)
+  brand_id         Int?
+  dg_items         String?   @db.Text
+  accents          String?   @db.LongText
+  team_name_config String?   @db.LongText
+  last_name_config String?   @db.LongText
+  active           Boolean   @default(true)
+  user             String?   @db.VarChar(255)
+  deleted_at       DateTime? @db.Timestamp(0)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  dg_items_details Json?
+  default_size     Int?
+}
+
+model department {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  department String    @db.VarChar(255)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model discount {
+  id                          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  code_name                   String    @db.VarChar(255)
+  discount_type               String    @db.VarChar(255)
+  discount_value_amount       Decimal?  @db.Decimal(8, 2)
+  discount_value_percentage   Int?
+  status                      Int       @default(0) @db.TinyInt
+  sport_ids                   Json?
+  price_item_ids              Json?
+  country_ids                 Json?
+  min_requirement_type        String?   @db.VarChar(255)
+  min_purchase_amount         Decimal?  @db.Decimal(8, 2)
+  min_quantity_of_items       Int?
+  customer_eligibility_type   String?   @db.VarChar(255)
+  brand_id                    Int?
+  dealer_id                   Int?
+  is_limited_use              Boolean   @default(false)
+  number_of_total_use         Int?
+  is_limited_to_one_customer  Boolean   @default(false)
+  used                        Int?      @default(0)
+  start_date                  DateTime  @db.Date
+  start_time                  DateTime? @db.Time(0)
+  is_end_date_set             Boolean   @default(false)
+  end_date                    DateTime? @db.Date
+  is_end_time_set             Boolean   @default(false)
+  end_time                    DateTime? @db.Time(0)
+  details                     String?   @db.VarChar(255)
+  created_by                  String?   @db.VarChar(255)
+  deleted_at                  DateTime? @db.Timestamp(0)
+  created_at                  DateTime? @db.Timestamp(0)
+  updated_at                  DateTime? @db.Timestamp(0)
+  buy_x_get_y_type            String?   @db.VarChar(255)
+  buy_quantity                Int?
+  buy_price_item_id           Int?
+  buy_factory_id              Int?
+  get_quantity                Int?
+  get_price_item_id           Int?
+  get_type                    String?   @db.VarChar(255)
+  get_type_percentage_amount  Decimal?  @db.Decimal(8, 2)
+  is_set_to_max_use_per_order Boolean   @default(false)
+  get_factory_id              Int?
+  buy_min_amount              Decimal?  @db.Decimal(8, 2)
+  get_min_amount              Decimal?  @db.Decimal(8, 2)
+  factory_ids                 Json?
+  min_days_given              Int?
+  display_name                String    @db.VarChar(255)
+}
+
+model discount_country {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model discounts_sports {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  discount_id Int
+  sport_id    Int
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model estimated_shipping_dates {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id Int
+  brand_id   Int
+  ship_date  String?   @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@index([factory_id, brand_id], map: "estimated_shipping_dates_factory_id_brand_id_index")
+}
+
+model fabric_coloring_process_terms {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  fabric_coloring_process String    @default("") @db.VarChar(255)
+  description             String?   @db.LongText
+  display_colors          Boolean   @default(false)
+  deleted_at              DateTime? @db.Timestamp(0)
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+}
+
+model fabrics {
+  id                                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  fabric_code                         String?   @db.VarChar(255)
+  brand_id                            Int?
+  name                                String?   @db.VarChar(255)
+  factory_id                          Int?
+  image                               String?   @db.VarChar(255)
+  image_thumbnail                     String?   @db.VarChar(255)
+  deleted_at                          DateTime? @db.Timestamp(0)
+  created_at                          DateTime? @db.Timestamp(0)
+  updated_at                          DateTime? @db.Timestamp(0)
+  dyed                                Boolean?  @default(false)
+  sublimated                          Boolean?  @default(false)
+  colors_id                           String?   @db.Text
+  heat_press                          Boolean?  @default(false)
+  fabric_coloring_process_term_ids    String?   @db.LongText
+  fabric_coloring_process_term_colors String?   @db.LongText
+  color_set_id                        BigInt?   @db.UnsignedBigInt
+}
+
+model fabrics_and_colors_by_brands {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  fabric_id       Int       @default(0)
+  brand_id        Int       @default(0)
+  item_name       String    @default("") @db.VarChar(255)
+  factory_id      Int       @default(0)
+  color_id        String?   @db.Text
+  image_link      String    @default("") @db.VarChar(255)
+  image_thumbnail String    @default("") @db.VarChar(255)
+  dyed            Boolean?  @default(false)
+  sublimated      Boolean?  @default(false)
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model fabrics_by_color_new {
+  id                                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  fabric_id                           Int       @default(0)
+  factory_id                          Int       @default(0)
+  colors_id                           String?   @db.Text
+  deleted_at                          DateTime? @db.Timestamp(0)
+  created_at                          DateTime? @db.Timestamp(0)
+  updated_at                          DateTime? @db.Timestamp(0)
+  fabric_coloring_process_term_ids    String?   @db.LongText
+  fabric_coloring_process_term_colors String?   @db.LongText
+  color_set_id                        BigInt?   @db.UnsignedBigInt
+}
+
+model fabrics_by_colors {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_fabric_id  Int?
+  master_color_ids String?   @db.Text
+  deleted_at       DateTime? @db.Timestamp(0)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  factory_id       Int?
+}
+
+model factory_cartons {
+  id                     BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id             Int?
+  factory_code           String?                  @db.VarChar(255)
+  brand_id               Int?
+  brand_name             String?                  @db.VarChar(255)
+  type                   Int?
+  type_name              String?                  @db.VarChar(255)
+  dimensions             String?                  @db.VarChar(255)
+  unit                   String?                  @db.VarChar(255)
+  file_name              String?                  @db.VarChar(255)
+  file_url               String?                  @db.VarChar(255)
+  file_info              String?                  @db.Text
+  active                 Boolean                  @default(true)
+  user                   String?                  @db.VarChar(255)
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  deleted_at             DateTime?                @db.Timestamp(0)
+  weight                 BigInt                   @db.UnsignedBigInt
+  factory_cartons_brands factory_cartons_brands[]
+}
+
+model factory_cartons_brands {
+  id                BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  master_brand_id   Int             @db.UnsignedInt
+  factory_carton_id BigInt          @db.UnsignedBigInt
+  created_at        DateTime?       @db.Timestamp(0)
+  updated_at        DateTime?       @db.Timestamp(0)
+  deleted_at        DateTime?       @db.Timestamp(0)
+  factory_cartons   factory_cartons @relation(fields: [factory_carton_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "factory_cartons_brands_factory_carton_id_foreign")
+  master_brands     master_brands   @relation(fields: [master_brand_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "factory_cartons_brands_master_brand_id_foreign")
+
+  @@index([factory_carton_id], map: "factory_cartons_brands_factory_carton_id_foreign")
+  @@index([master_brand_id], map: "factory_cartons_brands_master_brand_id_foreign")
+}
+
+model factory_moq {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id BigInt    @unique(map: "factory_moq_factory_id_unique") @db.UnsignedBigInt
+  moq        Int       @default(1)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+}
+
+model factory_processes {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id      Int?
+  factory_process String?   @db.VarChar(255)
+  description     String?   @db.VarChar(255)
+  active          Boolean   @default(true)
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model factory_production_day_requirements {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id              Int       @default(0)
+  given_production_days   Int       @default(0)
+  average_production_days Int       @default(0)
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+  deleted_at              DateTime? @db.Timestamp(0)
+  factory_days_out        Int       @default(0)
+}
+
+model factory_production_notes {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id          Int
+  factory_code        String    @db.VarChar(10)
+  brand               String?   @db.VarChar(50)
+  brand_id            Int
+  sport               String?   @db.VarChar(50)
+  sport_id            Int
+  block_pattern_3d    String?   @db.VarChar(100)
+  block_pattern_3d_id Int
+  style               String?   @db.VarChar(100)
+  customizer_id       Int
+  brand_style_id      BigInt?
+  brand_agnostic      Boolean   @default(false)
+  thumbnails          String?   @db.Text
+  canvas_json         String?   @db.Text
+  canvas_image        String?   @db.Text
+  is_hidden           Int       @default(0) @db.TinyInt
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+  deleted_at          DateTime? @db.Timestamp(0)
+  user_id             Int?
+
+  @@index([block_pattern_3d_id], map: "factory_production_notes_block_pattern_3d_id_index")
+  @@index([brand_id], map: "factory_production_notes_brand_id_index")
+  @@index([brand_style_id], map: "factory_production_notes_brand_style_id_index")
+  @@index([customizer_id], map: "factory_production_notes_customizer_id_index")
+  @@index([factory_id], map: "factory_production_notes_factory_id_index")
+  @@index([sport_id], map: "factory_production_notes_sport_id_index")
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  connection String   @db.VarChar(255)
+  queue      String   @db.VarChar(255)
+  payload    String   @db.LongText
+  exception  String   @db.LongText
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model fonts {
+  id                         Int            @id @default(autoincrement()) @db.UnsignedInt
+  master_font_id             Int?           @db.UnsignedInt
+  brand_id                   Int?           @db.UnsignedInt
+  name                       String?        @db.VarChar(75)
+  product_functionality_type Json?
+  sports                     Json?
+  deleted_at                 DateTime?      @db.Timestamp(0)
+  created_at                 DateTime?      @db.Timestamp(0)
+  updated_at                 DateTime?      @db.Timestamp(0)
+  customizer_id              Int?
+  active_status              Int?           @default(0)
+  master_brands              master_brands? @relation(fields: [brand_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fonts_brand_id_foreign")
+  master_fonts               master_fonts?  @relation(fields: [master_font_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "fonts_master_font_id_foreign")
+
+  @@index([brand_id], map: "fonts_brand_id_foreign")
+  @@index([master_font_id], map: "fonts_master_font_id_foreign")
+}
+
+model fonts_by_brand_application_method {
+  id                    Int    @id @default(autoincrement()) @db.UnsignedInt
+  application_method_id BigInt @db.UnsignedBigInt
+  fonts_by_brand_id     BigInt @db.UnsignedBigInt
+}
+
+model formulas {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String?   @db.VarChar(170)
+  brand_id   Int?
+  formula    String    @db.VarChar(100)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  brand_ids  String?   @db.LongText
+}
+
+model frequency {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id Int
+  brand_id   Int
+  frequency  String?   @db.VarChar(255)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model genders_by_brand {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id     Int       @default(0)
+  gender_label String?   @db.LongText
+  deleted_at   DateTime? @db.Timestamp(0)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model hts_code_duty_genders {
+  id                          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  hts_code_duty_percentage_id BigInt?   @db.UnsignedBigInt
+  gender_id                   BigInt?   @db.UnsignedBigInt
+  created_at                  DateTime? @db.Timestamp(0)
+  updated_at                  DateTime? @db.Timestamp(0)
+  deleted_at                  DateTime? @db.Timestamp(0)
+}
+
+model hts_code_duty_percentages {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  fabric_type_id  BigInt?   @db.UnsignedBigInt
+  hts_code        String    @db.VarChar(50)
+  garment_type    String    @db.VarChar(100)
+  duty_percentage Decimal   @db.Decimal(5, 2)
+  hts_content     String    @db.VarChar(255)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  deleted_at      DateTime? @db.Timestamp(0)
+}
+
+model intended_fits {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id          Int?
+  fit_intent        String    @default("") @db.VarChar(255)
+  description       String?   @db.Text
+  image_link        String?   @db.Text
+  active_status     Int       @default(0)
+  deleted_at        DateTime? @db.Timestamp(0)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  gender_id         Int       @default(0)
+  brand_id_multiple String?   @db.LongText
+}
+
+model item_difficulty_value {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id              Int?
+  master_block_pattern_id Int?
+  sport_ids               String?   @db.Text
+  brand_ids               String?   @db.Text
+  difficulty_value        String?   @db.Text
+  deleted_at              DateTime? @db.Timestamp(0)
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+  line_group              Int?      @default(0)
+}
+
+model item_difficulty_value_ba {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id              Int?      @default(0)
+  master_block_pattern_id Int?      @default(0)
+  sport_ids               String?   @db.Text
+  brand_ids               String?   @db.Text
+  line_group              Int?
+  difficulty_value        String?   @db.Text
+  deleted_at              DateTime? @db.Timestamp(0)
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+}
+
+model jobs {
+  id           BigInt @id @default(autoincrement()) @db.UnsignedBigInt
+  queue        String @db.VarChar(255)
+  payload      String @db.LongText
+  attempts     Int    @db.UnsignedTinyInt
+  reserved_at  Int?   @db.UnsignedInt
+  available_at Int    @db.UnsignedInt
+  created_at   Int    @db.UnsignedInt
+
+  @@index([queue], map: "jobs_queue_index")
+}
+
+model legacy_price_item_brand_item_code {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  price_item_id   Int
+  hts_code_id     Int?
+  qstrike_item_id Int
+  brand_item_code String    @db.VarChar(255)
+  sizes           Json
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model legal_documents {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id      Int       @default(0)
+  document_name String    @default("") @db.VarChar(255)
+  description   String    @default("") @db.VarChar(255)
+  image_link    String?   @db.Text
+  created_by_id Int       @default(0)
+  deleted_at    DateTime? @db.Timestamp(0)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model log {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  message    String?   @db.Text
+  channel    String?   @db.VarChar(255)
+  level      Int       @default(0)
+  level_name String    @db.VarChar(20)
+  unix_time  Int
+  datetime   String?   @db.Text
+  context    String?   @db.LongText
+  extra      String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model logs {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  message    String?   @db.Text
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  table_name String?   @db.VarChar(255)
+  record_id  BigInt?
+}
+
+model market_masters {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  market_name String?   @db.VarChar(255)
+  type        Int?
+  type_name   String?   @db.VarChar(255)
+  active      Boolean   @default(true)
+  user        String?   @db.VarChar(255)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}
+
+model master_3d_block_patterns {
+  id                            Int       @id @default(autoincrement()) @db.UnsignedInt
+  block_pattern_name            String?   @db.VarChar(75)
+  block_pattern_file            String?   @db.VarChar(255)
+  image_thumbnail               String?   @db.VarChar(255)
+  deleted_at                    DateTime? @db.Timestamp(0)
+  created_at                    DateTime? @db.Timestamp(0)
+  updated_at                    DateTime? @db.Timestamp(0)
+  brand_id                      Int?
+  sport_id                      Int?
+  master_block_pattern_group_id BigInt?
+  brand_id_multiple             String?   @db.Text
+  sport_id_multiple             String?   @db.Text
+  style_category_id             Int       @default(0)
+  brand_exclusive               Int       @default(0)
+}
+
+model master_accents {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  accent_name       String?   @db.VarChar(75)
+  thumbnail         String?   @db.VarChar(255)
+  accent_properties Json?
+  secondary_id      Int?
+  code              String?   @db.VarChar(50)
+  alias             String?   @default("no_alias") @db.VarChar(75)
+  deleted_at        DateTime? @db.Timestamp(0)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+}
+
+model master_add_ons {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id           Int       @default(0)
+  factory_id         Int       @default(0)
+  price_item         String?   @db.VarChar(255)
+  add_on_name        String    @default("") @db.VarChar(255)
+  description        String?   @db.Text
+  image              String    @default("") @db.VarChar(255)
+  type               Json?
+  pricing_details    Json?
+  applies            String    @default("") @db.VarChar(255)
+  is_active          Int       @default(0)
+  deleted_at         DateTime? @db.Timestamp(0)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+  rush_manufacturing Int       @default(0)
+  brand_item_code    String?   @db.VarChar(255)
+  item_code          String?   @db.VarChar(255)
+}
+
+model master_application_locations {
+  id                        Int       @id @default(autoincrement()) @db.UnsignedInt
+  location_number           Int?
+  common_name               String?   @db.VarChar(75)
+  default_view              Int?      @db.UnsignedInt
+  deleted_at                DateTime? @db.Timestamp(0)
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+  application_type_by_brand Json?
+}
+
+model master_application_sizes {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  size       String    @default("") @db.VarChar(255)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model master_application_type {
+  id                             Int       @id @default(autoincrement()) @db.UnsignedInt
+  application_type               String?   @db.VarChar(75)
+  deleted_at                     DateTime? @db.Timestamp(0)
+  created_at                     DateTime? @db.Timestamp(0)
+  updated_at                     DateTime? @db.Timestamp(0)
+  image                          String?   @db.VarChar(255)
+  description                    String?   @db.Text
+  application_functionality_type Json?
+}
+
+model master_automated_email_setups {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  email_setup String    @db.Text
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}
+
+model master_block_fabric_colors {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  block_pattern_rule_id Int?
+  master_fabric_id      Int?
+  master_fabric_ba_id   Int?
+  master_color_id       Int?
+  color_processing_id   Int?
+  is_active             Int       @default(0) @db.TinyInt
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+  deleted_at            DateTime? @db.Timestamp(0)
+}
+
+model master_block_h_t_s_codes {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  block_pattern_rule_id BigInt    @db.UnsignedBigInt
+  duty_hts_code_id      BigInt    @db.UnsignedBigInt
+  fabric_type           BigInt    @db.UnsignedBigInt
+  gender_id             BigInt    @db.UnsignedBigInt
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+}
+
+model master_block_missing_h_t_s_codes {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  block_pattern_rule_id BigInt    @db.UnsignedBigInt
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+}
+
+model master_block_pattern_groups {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(75)
+  thumbnail  String?   @db.VarChar(255)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  sport_id   Int?
+  brand_id   Int?
+  sort_order Int?
+}
+
+model master_block_pattern_percentage_status {
+  id                                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  master_block_id                    BigInt    @db.UnsignedBigInt
+  is_new_patterns_percentage_request Boolean   @default(false)
+  created_at                         DateTime? @db.Timestamp(0)
+  updated_at                         DateTime? @db.Timestamp(0)
+  deleted_at                         DateTime? @db.Timestamp(0)
+}
+
+model master_body_part_groups {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  body_part_group String?   @db.VarChar(255)
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  definition      String?   @db.Text
+}
+
+model master_body_part_names {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  part_name  String?   @db.VarChar(75)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model master_brand_assets {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id    Int       @default(0)
+  name        String    @default("") @db.VarChar(255)
+  description String?   @db.Text
+  logo        String?   @default("") @db.VarChar(255)
+  deleted_at  DateTime? @db.Timestamp(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model master_brands {
+  id                             Int                              @id @default(autoincrement()) @db.UnsignedInt
+  brand_code                     String?                          @db.VarChar(75)
+  brand                          String?                          @db.VarChar(75)
+  sub_brand_ids                  String?                          @db.LongText
+  corporate_office               String?                          @db.VarChar(75)
+  brand_contact                  String?                          @db.VarChar(75)
+  email                          String?                          @db.VarChar(75)
+  cell_phone                     String?                          @db.VarChar(75)
+  office_phone                   String?                          @db.VarChar(75)
+  brand_manager                  String?                          @db.VarChar(75)
+  brand_logo                     String?                          @db.VarChar(255)
+  active                         Boolean                          @default(false)
+  deleted_at                     DateTime?                        @db.Timestamp(0)
+  created_at                     DateTime?                        @db.Timestamp(0)
+  updated_at                     DateTime?                        @db.Timestamp(0)
+  dealer_id                      Int?                             @default(0)
+  background_image_brands        background_image_brands[]
+  brand_patterns                 brand_patterns[]
+  brand_sports                   brand_sports[]
+  brand_trims                    brand_trims[]
+  color_sets                     color_sets[]
+  colors                         colors[]
+  factory_cartons_brands         factory_cartons_brands[]
+  fonts                          fonts[]
+  master_size_groups             master_size_groups[]
+  sizes_by_brands                sizes_by_brands[]
+  style_category_grouping_brands style_category_grouping_brands[]
+
+  @@index([brand_code], map: "master_brands_brand_code_index")
+  @@fulltext([brand], map: "brand")
+}
+
+model master_color_group_intermediate_tables {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  master_color_group_id BigInt    @db.UnsignedBigInt
+  master_color_id       BigInt    @db.UnsignedBigInt
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+}
+
+model master_color_groups {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  display_order String    @db.VarChar(255)
+  group_status  Int       @db.TinyInt
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+  deleted_at    DateTime? @db.Timestamp(0)
+}
+
+model master_colors {
+  id                  Int       @id @default(autoincrement()) @db.UnsignedInt
+  factory_color_name  String?   @db.VarChar(75)
+  closest_pms_code    String?   @db.VarChar(75)
+  closest_coloro_code String?   @db.VarChar(75)
+  hex_code            String?   @db.VarChar(75)
+  sort_order          Int?
+  deleted_at          DateTime? @db.Timestamp(0)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+  abbreviation        String?   @default("") @db.VarChar(255)
+  active_status       Int       @default(0)
+  is_tonal            Int       @default(0) @db.TinyInt
+  has_a_tonal_color   Int       @default(0) @db.TinyInt
+  tonal_color_id      Int?
+  colors              colors[]
+}
+
+model master_decorations_group_items {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  item_name               String    @default("") @db.VarChar(255)
+  application_category_id Int       @default(0)
+  deleted_at              DateTime? @db.Timestamp(0)
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+}
+
+model master_fabric_tests {
+  id                          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  test_category               String?   @db.VarChar(255)
+  test_name                   String?   @db.VarChar(255)
+  test_method                 String?   @db.VarChar(255)
+  weights_and_measurements_id Int?
+  min                         String?   @db.VarChar(255)
+  max                         String?   @db.VarChar(255)
+  comment                     String?   @db.Text
+  deleted_at                  DateTime? @db.Timestamp(0)
+  created_at                  DateTime? @db.Timestamp(0)
+  updated_at                  DateTime? @db.Timestamp(0)
+  brand_id                    Int?
+}
+
+model master_fabric_types {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  fabric_type String    @db.VarChar(100)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}
+
+model master_fabrics {
+  id                  Int       @id @default(autoincrement()) @db.UnsignedInt
+  fabric_code         String?   @db.VarChar(75)
+  manufacturer        String?   @db.VarChar(100)
+  country             String?   @db.VarChar(75)
+  weight_gram         Float?
+  weight_oz           Float?
+  width               Float?
+  content             String?   @db.VarChar(255)
+  construction        String?   @db.VarChar(255)
+  fabric_type_id      Int?
+  leadtime            String?   @db.VarChar(255)
+  delivery            String?   @db.VarChar(255)
+  moq                 String?   @db.VarChar(255)
+  cost                String?   @db.VarChar(255)
+  sgs_test            String?   @db.VarChar(255)
+  deleted_at          DateTime? @db.Timestamp(0)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+  fis                 String?   @db.VarChar(255)
+  texture             String?   @db.VarChar(255)
+  factory_fabric_name String?   @db.VarChar(150)
+  notes               String?   @db.LongText
+  internal_test       String?   @db.LongText
+  function_features   String?   @db.LongText
+  fabric_code_new     String?   @db.VarChar(255)
+}
+
+model master_factory {
+  id                         Int                          @id @default(autoincrement()) @db.UnsignedInt
+  factory_code               String?                      @db.VarChar(75)
+  factory                    String?                      @db.VarChar(75)
+  factory_address            String?                      @db.VarChar(200)
+  factory_owner              String?                      @db.VarChar(75)
+  factory_owner_email        String?                      @db.VarChar(75)
+  cell_phone                 String?                      @db.VarChar(75)
+  office_phone               String?                      @db.VarChar(75)
+  factory_manager            String?                      @db.VarChar(75)
+  factory_manager_email      String?                      @db.VarChar(75)
+  active                     Boolean                      @default(false)
+  deleted_at                 DateTime?                    @db.Timestamp(0)
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  color_code                 String?                      @db.Text
+  threshold                  Int                          @default(0)
+  allow_opacity              Boolean                      @default(false)
+  avg_item_difficulty_values avg_item_difficulty_values[]
+  brand_trims                brand_trims[]
+  weighted_factories         weighted_factories[]
+
+  @@fulltext([factory_code], map: "factory_code")
+}
+
+model master_features {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  feature_code        String?   @db.VarChar(40)
+  feature             String    @db.VarChar(255)
+  feature_description String?   @db.VarChar(255)
+  status              Boolean   @default(false)
+  deleted_at          DateTime? @db.Timestamp(0)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+}
+
+model master_filter_flags {
+  id                      Int       @id @default(autoincrement()) @db.UnsignedInt
+  filter_flag_category    String?   @db.VarChar(255)
+  filter_flags            String?   @db.VarChar(255)
+  deleted_at              DateTime? @db.Timestamp(0)
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+  filter_flag_category_id Int?
+}
+
+model master_filter_flags_category {
+  id                   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  filter_flag_category String    @default("") @db.VarChar(255)
+  created_by_id        Int       @default(0)
+  deleted_at           DateTime? @db.Timestamp(0)
+  created_at           DateTime? @db.Timestamp(0)
+  updated_at           DateTime? @db.Timestamp(0)
+}
+
+model master_fonts {
+  id                   Int       @id @default(autoincrement()) @db.UnsignedInt
+  customizer_id        Int?
+  font_name            String?   @db.VarChar(75)
+  font_file            String?   @db.VarChar(255)
+  deleted_at           DateTime? @db.Timestamp(0)
+  created_at           DateTime? @db.Timestamp(0)
+  updated_at           DateTime? @db.Timestamp(0)
+  font_case            String?   @db.VarChar(255)
+  application_type_ids Json?
+  application_methods  Json?
+  font_common_name     String?   @db.Text
+  status               String?   @db.Text
+  fonts                fonts[]
+}
+
+model master_genders {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  gender          String?   @db.VarChar(16)
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  gender_category String    @default("") @db.VarChar(255)
+  unisex          Boolean   @default(false)
+}
+
+model master_how_to_measure {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  item_name  String    @default("") @db.VarChar(255)
+  reference  String?   @db.LongText
+  notes      String?   @db.LongText
+  category   String    @default("") @db.VarChar(255)
+  image_link String?   @db.Text
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model master_jersey_length_groups {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  jersey_lengths String    @db.LongText
+  default        Int
+  deleted_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model master_jersey_lengths {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  jersey_length String    @db.VarChar(255)
+  deleted_at    DateTime? @db.Timestamp(0)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model master_patterns {
+  id                   Int              @id @default(autoincrement()) @db.UnsignedInt
+  factory_pattern_name String?          @db.VarChar(75)
+  colors_count         Int?
+  pattern_file         String?          @db.Text
+  factory_ids          Json?
+  sports_ids           Json?
+  product_line_ids     Json?
+  deleted_at           DateTime?        @db.Timestamp(0)
+  created_at           DateTime?        @db.Timestamp(0)
+  updated_at           DateTime?        @db.Timestamp(0)
+  customizer_id        Int              @default(0)
+  brand_patterns       brand_patterns[]
+}
+
+model master_piping_locations {
+  id               Int       @id @default(autoincrement()) @db.UnsignedInt
+  piping_locations String?   @db.VarChar(75)
+  deleted_at       DateTime? @db.Timestamp(0)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+}
+
+model master_point_of_measures {
+  id                     Int               @id @default(autoincrement()) @db.UnsignedInt
+  pom_number             Int?
+  pom_name               String?           @db.VarChar(75)
+  tolerance_pos          Float?
+  tolerance_neg          Float?
+  style_category         Int?
+  image                  String?           @db.VarChar(255)
+  video                  String?           @db.VarChar(255)
+  deleted_at             DateTime?         @db.Timestamp(0)
+  created_at             DateTime?         @db.Timestamp(0)
+  updated_at             DateTime?         @db.Timestamp(0)
+  variable_length_option Boolean           @default(false)
+  description            String?           @db.LongText
+  notes                  String?           @db.LongText
+  spec_sheet_list        spec_sheet_list[]
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model master_price_item_brand_item_codes {
+  id                   BigInt @db.UnsignedBigInt
+  master_price_item_id BigInt @db.UnsignedBigInt
+  brand_item_code_id   BigInt @db.UnsignedBigInt
+
+  @@ignore
+}
+
+model master_price_items {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name                String?   @db.VarChar(50)
+  type                String?   @db.VarChar(255)
+  brand_id            Int
+  factory_id          Int
+  sport_id            Int
+  size_group_id       Int
+  roster_group_id     Int?
+  properties          Json
+  previous_msrp       Json?
+  deleted_at          DateTime? @db.Timestamp(0)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+  item_name           String?   @db.VarChar(255)
+  active              Boolean   @default(true)
+  block_pattern_3d_id Int       @default(0)
+  spec_sheet_id       Int?
+  sports_ids          String?   @db.LongText
+  sizes               String?   @db.LongText
+  sizes_ids           String?   @db.LongText
+  brand_item_code     String?   @db.LongText
+  add_ons_ids         Json?
+
+  @@fulltext([item_name], map: "item_name")
+  @@fulltext([name], map: "name")
+}
+
+model master_pricings {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  price_item            String?   @db.VarChar(255)
+  factory_price_item_id String    @db.VarChar(255)
+  factory_id            Int?
+  uniform_category_id   Int?
+  msrp                  Float?
+  web_price_sale        Float?
+  deleted_at            DateTime? @db.Timestamp(0)
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+}
+
+model master_product_feature_categories {
+  id                                   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  master_product_feature_category_name String?   @db.VarChar(249)
+  deleted_at                           DateTime? @db.Timestamp(0)
+  created_at                           DateTime? @db.Timestamp(0)
+  updated_at                           DateTime? @db.Timestamp(0)
+}
+
+model master_product_line {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_line String?   @db.VarChar(255)
+  deleted_at   DateTime? @db.Timestamp(0)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model master_product_tiers {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_tier String    @db.VarChar(255)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  deleted_at   DateTime? @db.Timestamp(0)
+}
+
+model master_resource_center {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  category_id Int
+  factory_id  Int
+  brand_id    Int
+  sport_id    Int
+  file_name   String    @db.VarChar(255)
+  file        String    @db.VarChar(255)
+  thumbnail   String?   @db.VarChar(255)
+  active      Int?      @default(0) @db.TinyInt
+  deleted_at  DateTime? @db.Timestamp(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  description String?   @db.Text
+  factory_ids String?   @db.Text
+  brand_ids   String?   @db.Text
+  sport_ids   String?   @db.Text
+}
+
+model master_resource_center_categories {
+  id                       BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  resource_center_category String    @db.VarChar(255)
+  deleted_at               DateTime? @db.Timestamp(0)
+  created_at               DateTime? @db.Timestamp(0)
+  updated_at               DateTime? @db.Timestamp(0)
+}
+
+model master_roster_sleeves {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  roster_sleeve String?   @db.VarChar(100)
+  deleted_at    DateTime? @db.Timestamp(0)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model master_rush_manufacturing {
+  id                                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id                           Int       @default(0)
+  brand_ids                          Json?
+  rush_level                         String    @default("") @db.VarChar(255)
+  factory_id                         Int       @default(0)
+  days_given_to_produce              Int?
+  average_days_in_artwork_production Int?
+  price_item_id                      Int       @default(0)
+  is_active                          Boolean   @default(false)
+  deleted_at                         DateTime? @db.Timestamp(0)
+  created_at                         DateTime? @db.Timestamp(0)
+  updated_at                         DateTime? @db.Timestamp(0)
+  add_on_id                          Int       @default(0)
+  add_on_ids                         String?   @db.LongText
+  lead_time                          Int?
+}
+
+model master_size_charts {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id                  Int?
+  sport_id                  Int?
+  style_category_id         Int?
+  application_type_id       Int?
+  file_name                 String?   @db.VarChar(255)
+  document_history          Json
+  deleted_at                DateTime? @db.Timestamp(0)
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+  gender_id                 Int       @default(0)
+  brand_ids                 String?   @db.LongText
+  sport_ids                 String?   @db.LongText
+  sizing_chart_name         String?   @default("") @db.VarChar(255)
+  style_category_ids        String?   @db.LongText
+  gender_ids                String?   @db.LongText
+  size_group_id             Int?      @default(0)
+  measurement_increments    String?   @db.VarChar(255)
+  dimension_type_ids        String?   @db.LongText
+  dimension_type_properties String?   @db.LongText
+  notes                     String?   @db.LongText
+  active_status             Int?      @default(0)
+}
+
+model master_size_groups {
+  id                           Int               @id @default(autoincrement()) @db.UnsignedInt
+  brand_id                     Int?              @db.UnsignedInt
+  sport_id                     Int?              @db.UnsignedInt
+  description                  String?           @db.VarChar(75)
+  sizes                        String?           @db.VarChar(255)
+  deleted_at                   DateTime?         @db.Timestamp(0)
+  created_at                   DateTime?         @db.Timestamp(0)
+  updated_at                   DateTime?         @db.Timestamp(0)
+  sizing_properties            String?           @db.Text
+  sizing_properties_customizer String?           @db.Text
+  notes                        Json?
+  size_ids                     String?           @db.LongText
+  master_brands                master_brands?    @relation(fields: [brand_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "master_size_groups_brand_id_foreign")
+  master_sports                master_sports?    @relation(fields: [sport_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "master_size_groups_sport_id_foreign")
+  spec_sheet_list              spec_sheet_list[]
+
+  @@index([brand_id], map: "master_size_groups_brand_id_foreign")
+  @@index([sport_id], map: "master_size_groups_sport_id_foreign")
+}
+
+model master_sizes {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  size_code       String?   @db.VarChar(75)
+  size_name       String?   @db.VarChar(75)
+  sort_order      Int?
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  gender_id       Int       @default(0)
+  gender_category String    @default("") @db.VarChar(255)
+}
+
+model master_sports {
+  id                         Int                          @id @default(autoincrement()) @db.UnsignedInt
+  sport_code                 String?                      @db.VarChar(75)
+  sport_name                 String?                      @db.VarChar(50)
+  sport_name_2               String?                      @db.VarChar(50)
+  deleted_at                 DateTime?                    @db.Timestamp(0)
+  created_at                 DateTime?                    @db.Timestamp(0)
+  updated_at                 DateTime?                    @db.Timestamp(0)
+  sport_names                String?                      @db.Text
+  avg_item_difficulty_values avg_item_difficulty_values[]
+  brand_sports               brand_sports[]
+  master_size_groups         master_size_groups[]
+  spec_sheet_list            spec_sheet_list[]
+
+  @@fulltext([sport_name], map: "sport_name")
+}
+
+model master_style_categories {
+  id                                      Int                                       @id @default(autoincrement()) @db.UnsignedInt
+  style_category                          String?                                   @db.VarChar(75)
+  type                                    String?                                   @db.VarChar(255)
+  deleted_at                              DateTime?                                 @db.Timestamp(0)
+  created_at                              DateTime?                                 @db.Timestamp(0)
+  updated_at                              DateTime?                                 @db.Timestamp(0)
+  style_category_grouping_pivot_mscg_mscs style_category_grouping_pivot_mscg_mscs[]
+}
+
+model master_style_category_groups {
+  id                                      BigInt                                    @id @default(autoincrement()) @db.UnsignedBigInt
+  master_style_category_group_name        String?                                   @db.VarChar(249)
+  deleted_at                              DateTime?                                 @db.Timestamp(0)
+  created_at                              DateTime?                                 @db.Timestamp(0)
+  updated_at                              DateTime?                                 @db.Timestamp(0)
+  style_category_grouping_m_s_c_g_s       style_category_grouping_m_s_c_g_s[]
+  style_category_grouping_pivot_mscg_mscs style_category_grouping_pivot_mscg_mscs[]
+}
+
+model master_tailsweeps {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id     Int       @default(0)
+  name         String    @default("") @db.VarChar(75)
+  image        String?   @db.VarChar(255)
+  sports       Json?
+  is_active    Boolean   @default(false)
+  deleted_at   DateTime? @db.Timestamp(0)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  brand_id_new String?   @db.LongText
+}
+
+model master_trim_types {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  trim_type  String?   @default("") @db.VarChar(255)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model master_trims {
+  id                   Int           @id @default(autoincrement()) @db.UnsignedInt
+  trim_id_code         String?       @db.VarChar(20)
+  trim_name            String?       @db.VarChar(75)
+  manufacturer         String?       @db.VarChar(100)
+  country              String?       @db.VarChar(75)
+  size                 String?       @db.VarChar(255)
+  weight_oz            String?       @db.VarChar(255)
+  content              String?       @db.VarChar(255)
+  construction         String?       @db.VarChar(255)
+  leadtime             String?       @db.VarChar(255)
+  delivery             String?       @db.VarChar(255)
+  moq                  String?       @db.VarChar(255)
+  cost                 String?       @db.VarChar(255)
+  image                String?       @db.VarChar(255)
+  deleted_at           DateTime?     @db.Timestamp(0)
+  created_at           DateTime?     @db.Timestamp(0)
+  updated_at           DateTime?     @db.Timestamp(0)
+  size_new             String?       @db.LongText
+  weight_new           String?       @db.LongText
+  moq_new              String?       @db.LongText
+  cost_new             String?       @db.LongText
+  tis_image            String?       @db.LongText
+  color_id             String?       @db.Text
+  trim_type_id         Int           @default(0)
+  factory_location     String?       @db.LongText
+  factory_ids          String?       @db.LongText
+  tech_pack_image      String?       @db.LongText
+  ref_image            String?       @db.VarChar(255)
+  image_pull_from      String?       @db.VarChar(255)
+  factory_size_new     String?       @db.LongText
+  washing_instructions String?       @db.LongText
+  trim_code            String?       @db.VarChar(255)
+  brand_trims          brand_trims[]
+
+  @@index([trim_id_code], map: "master_trims_trim_id_code_index")
+}
+
+model master_trims_locations {
+  id                   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  location_number      Int?
+  location_common_name String?   @db.VarChar(255)
+  deleted_at           DateTime? @db.Timestamp(0)
+  created_at           DateTime? @db.Timestamp(0)
+  updated_at           DateTime? @db.Timestamp(0)
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model oauth_access_tokens {
+  id         String    @id @db.VarChar(100)
+  user_id    Int?
+  client_id  Int       @db.UnsignedInt
+  name       String?   @db.VarChar(255)
+  scopes     String?   @db.Text
+  revoked    Boolean
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  expires_at DateTime? @db.DateTime(0)
+
+  @@index([user_id], map: "oauth_access_tokens_user_id_index")
+}
+
+model oauth_auth_codes {
+  id         String    @id @db.VarChar(100)
+  user_id    Int
+  client_id  Int       @db.UnsignedInt
+  scopes     String?   @db.Text
+  revoked    Boolean
+  expires_at DateTime? @db.DateTime(0)
+}
+
+model oauth_clients {
+  id                     Int       @id @default(autoincrement()) @db.UnsignedInt
+  user_id                Int?
+  name                   String    @db.VarChar(255)
+  secret                 String    @db.VarChar(100)
+  provider               String?   @db.VarChar(255)
+  redirect               String    @db.Text
+  personal_access_client Boolean
+  password_client        Boolean
+  revoked                Boolean
+  created_at             DateTime? @db.Timestamp(0)
+  updated_at             DateTime? @db.Timestamp(0)
+
+  @@index([user_id], map: "oauth_clients_user_id_index")
+}
+
+model oauth_personal_access_clients {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  client_id  Int       @db.UnsignedInt
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+
+  @@index([client_id], map: "oauth_personal_access_clients_client_id_index")
+}
+
+model oauth_refresh_tokens {
+  id              String    @id @db.VarChar(100)
+  access_token_id String    @db.VarChar(100)
+  revoked         Boolean
+  expires_at      DateTime? @db.DateTime(0)
+
+  @@index([access_token_id], map: "oauth_refresh_tokens_access_token_id_index")
+}
+
+model order_note_history {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  created_by_id       BigInt
+  order_id            BigInt
+  order_note_terms_id BigInt
+  order_note_reason   String    @db.VarChar(255)
+  deleted_at          DateTime? @db.Timestamp(0)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+}
+
+model order_note_terms {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  order_note String    @db.VarChar(255)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model order_packing_lists {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id                Int?      @db.SmallInt
+  packing_list_properties Json?
+  deleted_at              DateTime? @db.Timestamp(0)
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+}
+
+model orders {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id        Int       @default(0)
+  brand             String    @db.VarChar(255)
+  ref_order_id      String    @db.VarChar(255)
+  ref_reorder_id    String?   @db.VarChar(255)
+  original_due_date DateTime? @db.Date
+  due_date          DateTime? @db.Date
+  invoice_no        String?   @db.VarChar(255)
+  purchase_no       String?   @db.VarChar(255)
+  sales_rep         String?   @db.VarChar(255)
+  sales_rep_email   String?   @db.VarChar(255)
+  dealer            String?   @db.VarChar(255)
+  client            String?   @db.VarChar(255)
+  billing           Json?
+  shipping          Json?
+  order_details     Json?
+  item              String?   @db.VarChar(255)
+  description       String?   @db.VarChar(255)
+  order_items       Json?
+  reorder_items     Json?
+  order_notes       Json?
+  web_reference_no  String?   @db.VarChar(255)
+  pl_cart_id        String?   @db.VarChar(255)
+  status            String    @default("new") @db.VarChar(255)
+  received_at       DateTime  @default(now()) @db.Timestamp(0)
+  approved_at       DateTime? @db.Timestamp(0)
+  submitted_at      DateTime? @db.Timestamp(0)
+  resubmitted_at    DateTime? @db.Timestamp(0)
+  accepted_at       DateTime? @db.Timestamp(0)
+  rejected_at       DateTime? @db.Timestamp(0)
+  started_at        DateTime? @db.Timestamp(0)
+  completed_at      DateTime? @db.Timestamp(0)
+  shipped_at        DateTime? @db.Timestamp(0)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  deleted_at        DateTime? @db.Timestamp(0)
+}
+
+model orders_onhold_category {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  order_category String?   @db.VarChar(255)
+  deleted_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model packing_list_terms {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  packing_list_term String?   @db.VarChar(255)
+  deleted_at        DateTime? @db.Timestamp(0)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+}
+
+model pages {
+  id                BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  code              String?   @db.VarChar(255)
+  page_name         String?   @db.VarChar(255)
+  deleted_at        DateTime? @db.Timestamp(0)
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+  routes            Json?
+  icon              String?   @db.VarChar(255)
+  parent            Int?
+  sort_order        Int?
+  parent_id         Int?
+  permission_update Int?      @default(0)
+}
+
+model password_reset_tokens {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+}
+
+model personal_access_tokens {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  tokenable_type String    @db.VarChar(255)
+  tokenable_id   BigInt    @db.UnsignedBigInt
+  name           String    @db.VarChar(255)
+  token          String    @unique(map: "personal_access_tokens_token_unique") @db.VarChar(64)
+  abilities      String?   @db.Text
+  last_used_at   DateTime? @db.Timestamp(0)
+  expires_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+
+  @@index([tokenable_type, tokenable_id], map: "personal_access_tokens_tokenable_type_tokenable_id_index")
+}
+
+model picker_management {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id   Int?
+  hierarchy  Json?
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model position_role {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String?   @db.VarChar(50)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model price_item_secondary_fabrics {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  price_item_id BigInt    @db.UnsignedBigInt
+  fabric_id     BigInt    @db.UnsignedBigInt
+  fabric_code   String    @db.VarChar(255)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+  deleted_at    DateTime? @db.Timestamp(0)
+}
+
+model price_margins {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  name       String?   @db.VarChar(170)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model price_range {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id      BigInt    @db.UnsignedBigInt
+  minimum_price Decimal   @default(0.00) @db.Decimal(8, 2)
+  maximum_price Decimal   @default(0.00) @db.Decimal(8, 2)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+  deleted_at    DateTime? @db.Timestamp(0)
+}
+
+model pricing {
+  id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  price_item     Float?
+  msrp           Float?
+  web_price_sale Float?
+  deleted_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model pricing_terms {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String?   @db.VarChar(255)
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model processes_by_brand {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  processes_by_brand String    @default("") @db.VarChar(255)
+  active_status      Int       @default(0)
+  deleted_at         DateTime? @db.Timestamp(0)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+}
+
+model product_features {
+  id                          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id                    Int?
+  product_feature_category_id Int?
+  feature                     String    @default("") @db.VarChar(255)
+  description                 String?   @db.Text
+  image                       String?   @db.VarChar(255)
+  active_status               Int       @default(0)
+  deleted_at                  DateTime? @db.Timestamp(0)
+  created_at                  DateTime? @db.Timestamp(0)
+  updated_at                  DateTime? @db.Timestamp(0)
+  brand_id_multiple           String?   @db.LongText
+}
+
+model product_line {
+  id                         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_line               String    @default("") @db.VarChar(255)
+  master_product_line_id     BigInt?   @db.UnsignedBigInt
+  brand_id                   Int       @default(0)
+  deleted_at                 DateTime? @db.Timestamp(0)
+  created_at                 DateTime? @db.Timestamp(0)
+  updated_at                 DateTime? @db.Timestamp(0)
+  reference_table            String?   @db.VarChar(255)
+  alt_master_product_line_id String?   @db.VarChar(255)
+  default_sort_order         Int?
+}
+
+model product_line_by_brand_by_sport {
+  id                       BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_line_by_brand_id BigInt?   @db.UnsignedBigInt
+  sort_order               Int?      @default(0)
+  sport_id                 Int?
+  created_at               DateTime? @db.Timestamp(0)
+  updated_at               DateTime? @db.Timestamp(0)
+  deleted_at               DateTime? @db.Timestamp(0)
+}
+
+model product_views {
+  id                                         Int                                          @id @default(autoincrement()) @db.UnsignedInt
+  name                                       String                                       @db.VarChar(25)
+  active                                     Boolean                                      @default(true)
+  deleted_at                                 DateTime?                                    @db.Timestamp(0)
+  created_at                                 DateTime?                                    @db.Timestamp(0)
+  updated_at                                 DateTime?                                    @db.Timestamp(0)
+  block_pattern_rule_available_product_views block_pattern_rule_available_product_views[]
+}
+
+model qc_rules_by_brand {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_ids           Json?
+  quantity_rule_qc    String?   @db.LongText
+  quantity_rule_items String?   @db.LongText
+  size_rule           String?   @db.LongText
+  deleted_at          DateTime? @db.Timestamp(0)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+}
+
+model revisions {
+  id                Int       @id @default(autoincrement()) @db.UnsignedInt
+  revisionable_type String    @db.VarChar(255)
+  revisionable_id   Int
+  user_id           Int?
+  key               String    @db.VarChar(255)
+  event_type        String?   @db.VarChar(255)
+  old_value         String?   @db.LongText
+  new_value         String?   @db.LongText
+  created_at        DateTime? @db.Timestamp(0)
+  updated_at        DateTime? @db.Timestamp(0)
+
+  @@index([revisionable_id, revisionable_type], map: "revisions_revisionable_id_revisionable_type_index")
+}
+
+model role_permissions {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String?   @db.VarChar(255)
+  permission Json
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  updated_by Int?
+}
+
+model roster_application_process_groups {
+  id                    BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name                  String?         @db.VarChar(100)
+  application_processes String?         @db.LongText
+  deleted_at            DateTime?       @db.Timestamp(0)
+  created_at            DateTime?       @db.Timestamp(0)
+  updated_at            DateTime?       @db.Timestamp(0)
+  default               BigInt
+  roster_groups         roster_groups[]
+}
+
+model roster_application_processes {
+  id                         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  roster_application_process String?   @db.VarChar(100)
+  deleted_at                 DateTime? @db.Timestamp(0)
+  created_at                 DateTime? @db.Timestamp(0)
+  updated_at                 DateTime? @db.Timestamp(0)
+}
+
+model roster_crotch_option_groups {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name                  String    @db.VarChar(100)
+  roster_crotch_options String?   @db.LongText
+  default               BigInt?
+  deleted_at            DateTime? @db.Timestamp(0)
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+}
+
+model roster_crotch_options {
+  deleted_at DateTime? @db.Timestamp(0)
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  name       String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model roster_groups {
+  id                                BigInt                             @id @default(autoincrement()) @db.UnsignedBigInt
+  roster_group                      String?                            @db.VarChar(255)
+  roster_items                      String?                            @db.LongText
+  sleeve_group_id                   BigInt?                            @db.UnsignedBigInt
+  app_process_group_id              BigInt?                            @db.UnsignedBigInt
+  hemline_group_id                  BigInt?                            @db.UnsignedBigInt
+  inseam_group_id                   BigInt?                            @db.UnsignedBigInt
+  jersey_length_group_id            Int?                               @db.SmallInt
+  pant_cut_group_id                 BigInt?                            @db.UnsignedBigInt
+  deleted_at                        DateTime?                          @db.Timestamp(0)
+  created_at                        DateTime?                          @db.Timestamp(0)
+  updated_at                        DateTime?                          @db.Timestamp(0)
+  brand_id                          Int?                               @db.UnsignedInt
+  file                              String?                            @db.LongText
+  crotch_option_group_id            BigInt?                            @db.UnsignedBigInt
+  roster_application_process_groups roster_application_process_groups? @relation(fields: [app_process_group_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "roster_groups_app_process_group_id_foreign")
+  roster_hemline_groups             roster_hemline_groups?             @relation(fields: [hemline_group_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "roster_groups_hemline_group_id_foreign")
+  roster_inseam_groups              roster_inseam_groups?              @relation(fields: [inseam_group_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "roster_groups_inseam_group_id_foreign")
+  roster_pant_cut_groups            roster_pant_cut_groups?            @relation(fields: [pant_cut_group_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "roster_groups_pant_cut_group_id_foreign")
+  roster_sleeve_groups              roster_sleeve_groups?              @relation(fields: [sleeve_group_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "roster_groups_sleeve_group_id_foreign")
+
+  @@index([app_process_group_id], map: "roster_groups_app_process_group_id_foreign")
+  @@index([hemline_group_id], map: "roster_groups_hemline_group_id_foreign")
+  @@index([inseam_group_id], map: "roster_groups_inseam_group_id_foreign")
+  @@index([pant_cut_group_id], map: "roster_groups_pant_cut_group_id_foreign")
+  @@index([sleeve_group_id], map: "roster_groups_sleeve_group_id_foreign")
+}
+
+model roster_hemline_groups {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name          String?         @db.VarChar(100)
+  hemlines      String?         @db.LongText
+  deleted_at    DateTime?       @db.Timestamp(0)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  default       BigInt
+  roster_groups roster_groups[]
+}
+
+model roster_hemlines {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  roster_hemline String?   @db.VarChar(100)
+  deleted_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+model roster_inseam_groups {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name          String?         @db.VarChar(100)
+  inseams       String?         @db.LongText
+  deleted_at    DateTime?       @db.Timestamp(0)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  default       BigInt
+  roster_groups roster_groups[]
+}
+
+model roster_inseams {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  roster_inseam String?   @db.VarChar(100)
+  deleted_at    DateTime? @db.Timestamp(0)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model roster_items {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  roster_item String?   @db.VarChar(255)
+  sort_order  Int?
+  deleted_at  DateTime? @db.Timestamp(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+}
+
+model roster_pant_cut_groups {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name          String?         @db.VarChar(100)
+  pant_cuts     String?         @db.LongText
+  default       BigInt?
+  deleted_at    DateTime?       @db.Timestamp(0)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  roster_groups roster_groups[]
+}
+
+model roster_pant_cuts {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  roster_pant_cut String?   @db.VarChar(100)
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model roster_sleeve_groups {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name          String?         @db.VarChar(100)
+  sleeves       String?         @db.LongText
+  deleted_at    DateTime?       @db.Timestamp(0)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  default       BigInt
+  roster_groups roster_groups[]
+}
+
+model rules {
+  id                               Int       @id @default(autoincrement()) @db.UnsignedInt
+  spec_sheet_id                    Int?      @db.UnsignedInt
+  sizes                            Json?
+  block_pattern_id                 Int?      @db.UnsignedInt
+  roster_group_id                  Int?      @db.UnsignedInt
+  accents                          Json?
+  fonts                            Json?
+  patterns                         Json?
+  configurations                   Json?
+  max_applications                 Int?      @db.UnsignedInt
+  allowed_application_locations    Json?
+  application_locations            Json?
+  parts                            Json?
+  max_pipings                      Int?      @db.UnsignedInt
+  allowed_piping_locations         Json?
+  deleted_at                       DateTime? @db.Timestamp(0)
+  created_at                       DateTime? @db.Timestamp(0)
+  updated_at                       DateTime? @db.Timestamp(0)
+  rule_name                        String?   @db.VarChar(100)
+  roster_group                     Int?      @db.UnsignedInt
+  team_name_configurations         Json?
+  last_name_configurations         Json?
+  body_part_fabric_groups          Json?
+  body_part_color_groups           Json?
+  rule_brand_id                    Int?      @db.UnsignedInt
+  sports_id                        BigInt
+  flag                             BigInt    @default(0)
+  sku                              String?   @db.Text
+  factory_id                       Int?
+  twill_fabric_rules               Json?
+  brand_logo_application_locations Json?
+  quickturn                        String?   @db.VarChar(25)
+}
+
+model sewing_patterns {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  pattern_name  String    @default("") @db.VarChar(255)
+  factory_id    Int       @default(0)
+  brand_id      Int       @default(0)
+  sport_id      Int       @default(0)
+  gender_id     Int       @default(0)
+  file_link     String?   @db.Text
+  created_by_id Int       @default(0)
+  deleted_at    DateTime? @db.Timestamp(0)
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model shipping_rate_by_factories {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id       BigInt
+  brand_id         BigInt
+  multiplier       Decimal   @db.Decimal(8, 2)
+  multipliers      Int
+  items            Int
+  item_multipliers String    @db.LongText
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+}
+
+model shipping_rates_by_carriers {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  carrier_name    String    @default("") @db.VarChar(255)
+  factory_id      Int       @default(0)
+  carrier_details String?   @db.Text
+  created_by_id   Int       @default(0)
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model similar_style_groupings {
+  id                        BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id                  Int       @default(0)
+  gender_id                 Int       @default(0)
+  application_type_id       Int       @default(0)
+  sport_id                  Int       @default(0)
+  style_name_id             Int       @default(0)
+  suggested_paired_style_id Int       @default(0)
+  similar_paired_style      String?   @db.Text
+  deleted_at                DateTime? @db.Timestamp(0)
+  created_at                DateTime? @db.Timestamp(0)
+  updated_at                DateTime? @db.Timestamp(0)
+}
+
+model sizes_by_brands {
+  id            BigInt        @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_size_id BigInt        @db.UnsignedBigInt
+  brand_code    Int           @db.UnsignedInt
+  sort_order    Int
+  created_at    DateTime?     @db.Timestamp(0)
+  updated_at    DateTime?     @db.Timestamp(0)
+  deleted_at    DateTime?     @db.Timestamp(0)
+  master_brands master_brands @relation(fields: [brand_code], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sizes_by_brands_brand_code_foreign")
+  brand_sizes   brand_sizes   @relation(fields: [brand_size_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "sizes_by_brands_brand_size_id_foreign")
+
+  @@unique([brand_code, sort_order], map: "sizes_by_brands_brand_code_sort_order_unique")
+  @@index([brand_size_id], map: "sizes_by_brands_brand_size_id_foreign")
+}
+
+model social_media_icon_groups {
+  id                               BigInt                           @id @default(autoincrement()) @db.UnsignedBigInt
+  title                            String?                          @db.VarChar(255)
+  icon_option_id                   BigInt                           @db.UnsignedBigInt
+  style_option_id                  BigInt                           @db.UnsignedBigInt
+  web_image                        String?                          @db.VarChar(255)
+  email_image                      String?                          @db.VarChar(255)
+  active                           Boolean                          @default(true)
+  created_at                       DateTime?                        @db.Timestamp(0)
+  updated_at                       DateTime?                        @db.Timestamp(0)
+  deleted_at                       DateTime?                        @db.Timestamp(0)
+  social_media_icon_options        social_media_icon_options        @relation(fields: [icon_option_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "social_media_icon_groups_icon_option_id_foreign")
+  social_media_icon_styles_options social_media_icon_styles_options @relation(fields: [style_option_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "social_media_icon_groups_style_option_id_foreign")
+
+  @@index([icon_option_id], map: "social_media_icon_groups_icon_option_id_foreign")
+  @@index([style_option_id], map: "social_media_icon_groups_style_option_id_foreign")
+}
+
+model social_media_icon_options {
+  id                       BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  title                    String                     @db.VarChar(255)
+  active                   Boolean                    @default(true)
+  created_at               DateTime?                  @db.Timestamp(0)
+  updated_at               DateTime?                  @db.Timestamp(0)
+  deleted_at               DateTime?                  @db.Timestamp(0)
+  social_media_icon_groups social_media_icon_groups[]
+}
+
+model social_media_icon_styles_options {
+  id                       BigInt                     @id @default(autoincrement()) @db.UnsignedBigInt
+  style                    String                     @db.VarChar(255)
+  active                   Boolean                    @default(true)
+  created_at               DateTime?                  @db.Timestamp(0)
+  updated_at               DateTime?                  @db.Timestamp(0)
+  deleted_at               DateTime?                  @db.Timestamp(0)
+  social_media_icon_groups social_media_icon_groups[]
+}
+
+model spec_sheet_brands {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  spec_sheet_id BigInt    @db.UnsignedBigInt
+  brand_id      BigInt    @db.UnsignedBigInt
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model spec_sheet_list {
+  id                       Int                       @id @default(autoincrement()) @db.UnsignedInt
+  spec_sheet_name          String?                   @db.VarChar(75)
+  origin_spec              Int?
+  spec_sheet_version       Int                       @default(1)
+  sport_id                 Int?                      @db.UnsignedInt
+  size_group_id            Int?                      @db.UnsignedInt
+  measurement_increments   String?                   @db.VarChar(15)
+  pom_id                   Int?                      @db.UnsignedInt
+  properties               Json?
+  brand_id                 Int?
+  notes                    Json?
+  deleted_at               DateTime?                 @db.Timestamp(0)
+  created_at               DateTime?                 @db.Timestamp(0)
+  updated_at               DateTime?                 @db.Timestamp(0)
+  brand_id_new             String?                   @db.LongText
+  gender_id                String?                   @db.LongText
+  sport_ids                String?                   @db.LongText
+  brand_exclusive          Boolean                   @default(false)
+  size_chart_property      Json?
+  created_by_id            Int                       @default(0)
+  master_point_of_measures master_point_of_measures? @relation(fields: [pom_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "spec_sheet_list_pom_id_foreign")
+  master_size_groups       master_size_groups?       @relation(fields: [size_group_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "spec_sheet_list_size_group_id_foreign")
+  master_sports            master_sports?            @relation(fields: [sport_id], references: [id], onDelete: Restrict, onUpdate: Restrict, map: "spec_sheet_list_sport_id_foreign")
+
+  @@index([pom_id], map: "spec_sheet_list_pom_id_foreign")
+  @@index([size_group_id], map: "spec_sheet_list_size_group_id_foreign")
+  @@index([sport_id], map: "spec_sheet_list_sport_id_foreign")
+  @@fulltext([sport_ids], map: "spec_sheet_list_sport_ids_index")
+}
+
+model spec_sheet_sports {
+  id            BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  spec_sheet_id BigInt    @db.UnsignedBigInt
+  sport_id      BigInt    @db.UnsignedBigInt
+  created_at    DateTime? @db.Timestamp(0)
+  updated_at    DateTime? @db.Timestamp(0)
+}
+
+model spec_sheet_versions {
+  id                   BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  spec_sheet_id        BigInt    @db.UnsignedBigInt
+  parent_spec_sheet_id BigInt    @db.UnsignedBigInt
+  created_at           DateTime? @db.Timestamp(0)
+  updated_at           DateTime? @db.Timestamp(0)
+}
+
+model stock_item_sortlies {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  stock_item_id    Int
+  style_name       String    @db.VarChar(255)
+  sortly_style_id  Int
+  sortly_color_id  Int
+  stock_item_color String    @db.VarChar(50)
+  stock_item_size  String    @db.VarChar(50)
+  sortly_size_id   Int
+  user_id          BigInt    @db.UnsignedBigInt
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  deleted_at       DateTime? @db.Timestamp(0)
+
+  @@index([sortly_color_id], map: "stock_item_sortlies_sortly_color_id_index")
+  @@index([sortly_size_id], map: "stock_item_sortlies_sortly_size_id_index")
+  @@index([sortly_style_id], map: "stock_item_sortlies_sortly_style_id_index")
+  @@index([stock_item_color], map: "stock_item_sortlies_stock_item_color_index")
+  @@index([stock_item_id], map: "stock_item_sortlies_stock_item_id_index")
+  @@index([stock_item_size], map: "stock_item_sortlies_stock_item_size_index")
+  @@index([user_id], map: "stock_item_sortlies_user_id_index")
+  @@fulltext([style_name], map: "style_name")
+}
+
+model stock_item_sortly_invetory_logs {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  stock_item_id   Int
+  sortly_item_id  Int?      @default(0)
+  sortly_color_id Int?      @default(0)
+  sortly_size_id  Int?      @default(0)
+  beg_bal         Int?      @default(0)
+  end_bal         Int
+  qty_in          Int?      @default(0)
+  qty_out         Int?      @default(0)
+  remarks         String?   @db.VarChar(255)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  deleted_at      DateTime? @db.Timestamp(0)
+}
+
+model stock_items {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  blockpatternrule_id   Int?
+  blockpatternrule_name String?   @db.VarChar(255)
+  factory_id            Int?
+  factory_code          String?   @db.VarChar(255)
+  brand_id              Int?
+  brand_name            String?   @db.VarChar(255)
+  base_color_set_id     Int?
+  base_color_set_name   String?   @db.VarChar(255)
+  base_color_id         Int?
+  base_color_name       String?   @db.VarChar(255)
+  stocks                String?   @db.Text
+  emails                String?   @db.Text
+  email_body            String?   @db.Text
+  user                  String?   @db.VarChar(255)
+  active                Boolean   @default(true)
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+  deleted_at            DateTime? @db.Timestamp(0)
+}
+
+model stock_items_history {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  stockitem_id    Int?
+  infochanges     String?   @db.Text
+  stockchanges    String?   @db.Text
+  stockqtychanges String?   @db.Text
+  user            String?   @db.VarChar(255)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+  deleted_at      DateTime? @db.Timestamp(0)
+}
+
+model stores {
+  id                 BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  dealer_id          Int?
+  default_store      Int?
+  store_name         String?   @db.VarChar(255)
+  shipping_email     String?   @db.VarChar(255)
+  shipping_phone     String?   @db.VarChar(255)
+  zip_code           String?   @db.VarChar(255)
+  country            String?   @db.VarChar(255)
+  state              String?   @db.VarChar(255)
+  city               String?   @db.VarChar(255)
+  shipping_address_1 String?   @db.VarChar(255)
+  shipping_address_2 String?   @db.VarChar(255)
+  created_at         DateTime? @db.Timestamp(0)
+  updated_at         DateTime? @db.Timestamp(0)
+  deleted_at         DateTime? @db.Timestamp(0)
+}
+
+model style_category_grouping_brands {
+  id                       BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  master_brand_id          Int                      @db.UnsignedInt
+  style_cat_grp_id         BigInt                   @db.UnsignedBigInt
+  created_at               DateTime?                @db.Timestamp(0)
+  updated_at               DateTime?                @db.Timestamp(0)
+  master_brands            master_brands            @relation(fields: [master_brand_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "style_category_grouping_brands_master_brand_id_foreign")
+  style_category_groupings style_category_groupings @relation(fields: [style_cat_grp_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "style_category_grouping_brands_style_cat_grp_id_foreign")
+
+  @@index([master_brand_id], map: "style_category_grouping_brands_master_brand_id_foreign")
+  @@index([style_cat_grp_id], map: "style_category_grouping_brands_style_cat_grp_id_foreign")
+}
+
+model style_category_grouping_m_s_c_g_s {
+  id                           BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  style_cat_grp_id             BigInt                       @db.UnsignedBigInt
+  m_style_cat_grp_id           BigInt                       @db.UnsignedBigInt
+  created_at                   DateTime?                    @db.Timestamp(0)
+  updated_at                   DateTime?                    @db.Timestamp(0)
+  master_style_category_groups master_style_category_groups @relation(fields: [m_style_cat_grp_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "style_category_grouping_m_s_c_g_s_m_style_cat_grp_id_foreign")
+  style_category_groupings     style_category_groupings     @relation(fields: [style_cat_grp_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "style_category_grouping_m_s_c_g_s_style_cat_grp_id_foreign")
+
+  @@index([m_style_cat_grp_id], map: "style_category_grouping_m_s_c_g_s_m_style_cat_grp_id_foreign")
+  @@index([style_cat_grp_id], map: "style_category_grouping_m_s_c_g_s_style_cat_grp_id_foreign")
+}
+
+model style_category_grouping_pivot_mscg_mscs {
+  id                           BigInt                       @id @default(autoincrement()) @db.UnsignedBigInt
+  style_cat_grp_id             BigInt                       @db.UnsignedBigInt
+  m_style_cat_grp_id           BigInt                       @db.UnsignedBigInt
+  m_style_cat_id               Int                          @db.UnsignedInt
+  created_at                   DateTime?                    @db.Timestamp(0)
+  updated_at                   DateTime?                    @db.Timestamp(0)
+  master_style_category_groups master_style_category_groups @relation(fields: [m_style_cat_grp_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_m_style_cat_grp_id")
+  master_style_categories      master_style_categories      @relation(fields: [m_style_cat_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_m_style_cat_id")
+  style_category_groupings     style_category_groupings     @relation(fields: [style_cat_grp_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_style_cat_grp_id")
+
+  @@index([m_style_cat_grp_id], map: "fk_m_style_cat_grp_id")
+  @@index([m_style_cat_id], map: "fk_m_style_cat_id")
+  @@index([style_cat_grp_id], map: "fk_style_cat_grp_id")
+}
+
+model style_category_groupings {
+  id                                      BigInt                                    @id @default(autoincrement()) @db.UnsignedBigInt
+  deleted_at                              DateTime?                                 @db.Timestamp(0)
+  created_at                              DateTime?                                 @db.Timestamp(0)
+  updated_at                              DateTime?                                 @db.Timestamp(0)
+  style_category_grouping_brands          style_category_grouping_brands[]
+  style_category_grouping_m_s_c_g_s       style_category_grouping_m_s_c_g_s[]
+  style_category_grouping_pivot_mscg_mscs style_category_grouping_pivot_mscg_mscs[]
+}
+
+model style_request_intersecting_parts {
+  id                    BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  style_request_id      Int?
+  block_pattern_rule_id Int?
+  trim_category_id      Int?
+  available_location_id Int?
+  intersecting_parts    String?   @db.LongText
+  created_at            DateTime? @db.Timestamp(0)
+  updated_at            DateTime? @db.Timestamp(0)
+  deleted_at            DateTime? @db.Timestamp(0)
+}
+
+model style_requests {
+  id                                                      Int       @id @default(autoincrement()) @db.UnsignedInt
+  style_name                                              String?   @db.VarChar(150)
+  style_code                                              String?   @db.VarChar(255)
+  adult_vendor_style                                      String?   @db.VarChar(150)
+  youth_vendor_style                                      String?   @db.VarChar(150)
+  style_id                                                Int?      @db.UnsignedInt
+  brand_id                                                Int?      @db.UnsignedInt
+  gender_id                                               Int?      @db.UnsignedInt
+  sport_id                                                Int?      @db.UnsignedInt
+  application_type_id                                     Int?      @db.UnsignedInt
+  style_category_id                                       Int?      @db.UnsignedInt
+  filter_flags                                            Json?
+  factory_id                                              Int?      @db.UnsignedInt
+  quickstrike_item_id                                     Int?      @db.UnsignedInt
+  priority                                                String?   @db.VarChar(75)
+  deadline                                                DateTime? @db.Date
+  design_sheet                                            String?   @db.LongText
+  notes                                                   Json?
+  rule_id                                                 Int?      @db.UnsignedInt
+  deleted_at                                              DateTime? @db.Timestamp(0)
+  created_at                                              DateTime? @db.Timestamp(0)
+  updated_at                                              DateTime? @db.Timestamp(0)
+  created_by                                              Int?      @db.UnsignedInt
+  status                                                  String?   @db.VarChar(75)
+  status_logs                                             Json?
+  elite_upgradeable                                       Boolean   @default(false)
+  sku                                                     String?   @db.Text
+  customizer_id                                           Int?
+  type                                                    String?   @default("") @db.VarChar(15)
+  reference_block                                         Int?
+  block_definitions                                       String?   @db.LongText
+  price_item_id                                           Int?
+  style_definitions                                       String?   @db.LongText
+  style_specific_body_part_fabric_groups                  Json?
+  style_specific_body_part_color_groups                   Json?
+  style_specific_max_pipings                              Int?
+  style_specific_allowed_piping_locations                 Json?
+  reference_photos                                        String?   @db.LongText
+  fit_intent_id                                           Int?
+  product_features                                        String?   @db.LongText
+  customizer_available                                    Int       @default(0)
+  filter_flags_new                                        String?   @db.LongText
+  brand_agnostic                                          Boolean   @default(false)
+  block_pattern_rule_id                                   Int       @default(0)
+  tag_expiry_date                                         DateTime? @db.Date
+  sport_ids                                               String?   @db.LongText
+  body_parts                                              Json?
+  complete                                                Int?
+  material_id                                             Int       @default(0)
+  body_part_group_default_colors                          Json?
+  trims_default_colors                                    Json?
+  piping_default_colors                                   Json?
+  default_patterns                                        Json?
+  default_applications                                    Json?
+  sort_order                                              Int       @default(0)
+  sport_category                                          String?   @db.LongText
+  adult_item_id                                           Int?      @default(0)
+  youth_item_id                                           Int?      @default(0)
+  status_new                                              String?   @db.Text
+  webQA_assignee                                          Int?      @db.UnsignedInt
+  webGA_assignee                                          Int?      @db.UnsignedInt
+  data_specialist_assignee_id                             Int?      @db.UnsignedInt
+  users_style_requests_data_specialist_assignee_idTousers users?    @relation("style_requests_data_specialist_assignee_idTousers", fields: [data_specialist_assignee_id], references: [id], onUpdate: NoAction, map: "style_requests_data_specialist_assignee_id_foreign")
+  users_style_requests_webGA_assigneeTousers              users?    @relation("style_requests_webGA_assigneeTousers", fields: [webGA_assignee], references: [id], onUpdate: NoAction, map: "style_requests_webga_assignee_foreign")
+  users_style_requests_webQA_assigneeTousers              users?    @relation("style_requests_webQA_assigneeTousers", fields: [webQA_assignee], references: [id], onUpdate: NoAction, map: "style_requests_webqa_assignee_foreign")
+
+  @@index([application_type_id], map: "style_requests_application_type_id_index")
+  @@index([block_pattern_rule_id], map: "style_requests_block_pattern_rule_id_index")
+  @@index([brand_agnostic], map: "style_requests_brand_agnostic_index")
+  @@index([brand_id], map: "style_requests_brand_id_index")
+  @@index([complete], map: "style_requests_complete_index")
+  @@index([created_by], map: "style_requests_created_by_index")
+  @@index([customizer_available], map: "style_requests_customizer_available_index")
+  @@index([customizer_id], map: "style_requests_customizer_id_index")
+  @@index([data_specialist_assignee_id], map: "style_requests_data_specialist_assignee_id_foreign")
+  @@index([deleted_at], map: "style_requests_deleted_at_index")
+  @@index([factory_id], map: "style_requests_factory_id_index")
+  @@index([fit_intent_id], map: "style_requests_fit_intent_id_index")
+  @@index([gender_id], map: "style_requests_gender_id_index")
+  @@index([material_id], map: "style_requests_material_id_index")
+  @@index([price_item_id], map: "style_requests_price_item_id_index")
+  @@index([quickstrike_item_id], map: "style_requests_quickstrike_item_id_index")
+  @@index([reference_block], map: "style_requests_reference_block_index")
+  @@index([rule_id], map: "style_requests_rule_id_index")
+  @@index([sort_order], map: "style_requests_sort_order_index")
+  @@index([sport_id], map: "style_requests_sport_id_index")
+  @@index([style_category_id], map: "style_requests_style_category_id_index")
+  @@index([style_id], map: "style_requests_style_id_index")
+  @@index([style_name], map: "style_requests_style_name_index")
+  @@index([style_specific_max_pipings], map: "style_requests_style_specific_max_pipings_index")
+  @@index([webGA_assignee], map: "style_requests_webga_assignee_foreign")
+  @@index([webQA_assignee], map: "style_requests_webqa_assignee_foreign")
+  @@fulltext([style_name], map: "style_name")
+}
+
+model sublimated_colors_by_brand {
+  id               BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id         Int       @default(0)
+  standard_colors  String?   @db.Text
+  deleted_at       DateTime? @db.Timestamp(0)
+  created_at       DateTime? @db.Timestamp(0)
+  updated_at       DateTime? @db.Timestamp(0)
+  secondary_colors String?   @db.Text
+  file             String?   @db.LongText
+}
+
+model tailsweeps_configurations {
+  id             Int       @id @default(autoincrement()) @db.UnsignedInt
+  configurations String?   @db.VarChar(255)
+  deleted_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model team_dealer_user {
+  dealer_id                      BigInt  @db.UnsignedBigInt
+  user_id                        BigInt  @db.UnsignedBigInt
+  position_id                    Int?    @db.UnsignedInt
+  reports_to_team_dealer_user_id Int?    @db.UnsignedInt
+  specialty_sports               String? @db.LongText
+  office_phone                   String? @db.VarChar(255)
+  office_phone_ext               String? @db.VarChar(255)
+  store_location_id              Int?
+  cphone                         String? @db.VarChar(255)
+  pant_size                      String? @db.VarChar(255)
+  shoe_size                      String? @db.VarChar(255)
+  shirt_size                     String? @db.VarChar(255)
+  hat_size                       String? @db.VarChar(255)
+  all                            Boolean @default(false)
+  tracking                       Boolean @default(false)
+  place_order                    Boolean @default(false)
+  pricing_area                   Boolean @default(false)
+  stats_area                     Boolean @default(false)
+  stats_individual               Boolean @default(false)
+  pricing_individual             Boolean @default(false)
+  stats_organization             Boolean @default(false)
+  pricing_organization           Boolean @default(false)
+
+  @@index([dealer_id, user_id, position_id, reports_to_team_dealer_user_id], map: "team_dealer_user_index")
+  @@ignore
+}
+
+model telescope_entries {
+  sequence                BigInt                   @id @default(autoincrement()) @db.UnsignedBigInt
+  uuid                    String                   @unique(map: "telescope_entries_uuid_unique") @db.Char(36)
+  batch_id                String                   @db.Char(36)
+  family_hash             String?                  @db.VarChar(255)
+  should_display_on_index Boolean                  @default(true)
+  type                    String                   @db.VarChar(20)
+  content                 String                   @db.LongText
+  created_at              DateTime?                @db.DateTime(0)
+  telescope_entries_tags  telescope_entries_tags[] @ignore
+
+  @@index([batch_id], map: "telescope_entries_batch_id_index")
+  @@index([family_hash], map: "telescope_entries_family_hash_index")
+  @@index([type, should_display_on_index], map: "telescope_entries_type_should_display_on_index_index")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model telescope_entries_tags {
+  entry_uuid        String            @db.Char(36)
+  tag               String            @db.VarChar(255)
+  telescope_entries telescope_entries @relation(fields: [entry_uuid], references: [uuid], onDelete: Cascade, onUpdate: NoAction, map: "telescope_entries_tags_entry_uuid_foreign")
+
+  @@index([entry_uuid, tag], map: "telescope_entries_tags_entry_uuid_tag_index")
+  @@index([tag], map: "telescope_entries_tags_tag_index")
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by Prisma Client.
+model telescope_monitoring {
+  tag String @db.VarChar(255)
+
+  @@ignore
+}
+
+model text_options_application_locations {
+  id                      BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  application_location_id BigInt    @db.UnsignedBigInt
+  block_pattern_rule_id   BigInt    @db.UnsignedBigInt
+  maximum_w               Decimal?  @db.Decimal(8, 2)
+  maximum_h               Decimal?  @db.Decimal(8, 2)
+  absolute_w              Decimal?  @db.Decimal(8, 2)
+  created_at              DateTime? @db.Timestamp(0)
+  updated_at              DateTime? @db.Timestamp(0)
+  deleted_at              DateTime? @db.Timestamp(0)
+}
+
+model toggles_reference_data {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  target_table    String    @db.VarChar(255)
+  record_id       Int       @default(0)
+  field_name      String    @db.VarChar(255)
+  master_brand_id Int?      @default(0)
+  value           String    @db.VarChar(255)
+  environment     String    @db.VarChar(255)
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+model trim_types {
+  id             BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  trim_type_name String    @default("") @db.VarChar(255)
+  created_by_id  Int       @default(0)
+  deleted_at     DateTime? @db.Timestamp(0)
+  created_at     DateTime? @db.Timestamp(0)
+  updated_at     DateTime? @db.Timestamp(0)
+  trim_type_id   Int       @default(0)
+}
+
+model trims_by_color {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  trim_id             Int       @default(0)
+  factory_id_multiple String?   @db.LongText
+  trim_location       String?   @db.LongText
+  colors_id           String?   @db.LongText
+  deleted_at          DateTime? @db.Timestamp(0)
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+}
+
+model update_history {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  table_name String    @db.VarChar(255)
+  user_id    Int
+  record_id  Int
+  message    Json
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model user_permissions {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id     Int?
+  permissions Json?
+  deleted_at  DateTime? @db.Timestamp(0)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  dealer_id   Int?      @db.SmallInt
+  user_role   Int?      @db.SmallInt
+  brand_id    Int?      @db.SmallInt
+}
+
+model user_restriction {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user         String?   @db.VarChar(255)
+  restrictions String?   @db.Text
+  deleted_at   DateTime? @db.Timestamp(0)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model user_role_restrictions {
+  id           BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_role    String?   @db.VarChar(255)
+  restrictions String?   @db.Text
+  deleted_at   DateTime? @db.Timestamp(0)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+}
+
+model users {
+  id                                                                         Int                   @id @default(autoincrement()) @db.UnsignedInt
+  first_name                                                                 String?               @db.VarChar(50)
+  last_name                                                                  String?               @db.VarChar(50)
+  email                                                                      String                @unique(map: "users_email_unique") @db.VarChar(100)
+  password                                                                   String                @db.VarChar(100)
+  user_role                                                                  String?               @db.VarChar(50)
+  last_login                                                                 DateTime?             @db.DateTime(0)
+  active                                                                     Boolean               @default(true)
+  remember_token                                                             String?               @db.VarChar(100)
+  deleted_at                                                                 DateTime?             @db.Timestamp(0)
+  created_at                                                                 DateTime?             @db.Timestamp(0)
+  updated_at                                                                 DateTime?             @db.Timestamp(0)
+  position                                                                   Int?
+  roles                                                                      Json?
+  custom_permission                                                          Json?
+  brand_id                                                                   Int?
+  phone                                                                      String?               @db.VarChar(255)
+  department                                                                 Int?
+  user_type                                                                  String?               @db.VarChar(255)
+  fptoken                                                                    String?               @db.Text
+  activationtoken                                                            String?               @db.Text
+  brand_id_new                                                               String?               @db.LongText
+  factory_id                                                                 Int                   @default(0)
+  can_place_order                                                            Boolean               @default(false)
+  remove_from_website_rep_list                                               Boolean               @default(false)
+  block_pattern_rules_block_pattern_rules_data_specialist_assignee_idTousers block_pattern_rules[] @relation("block_pattern_rules_data_specialist_assignee_idTousers")
+  block_pattern_rules_block_pattern_rules_webGA_assigneeTousers              block_pattern_rules[] @relation("block_pattern_rules_webGA_assigneeTousers")
+  block_pattern_rules_block_pattern_rules_webQA_assigneeTousers              block_pattern_rules[] @relation("block_pattern_rules_webQA_assigneeTousers")
+  style_requests_style_requests_data_specialist_assignee_idTousers           style_requests[]      @relation("style_requests_data_specialist_assignee_idTousers")
+  style_requests_style_requests_webGA_assigneeTousers                        style_requests[]      @relation("style_requests_webGA_assigneeTousers")
+  style_requests_style_requests_webQA_assigneeTousers                        style_requests[]      @relation("style_requests_webQA_assigneeTousers")
+}
+
+model users_dealers {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    Int       @db.UnsignedInt
+  brand_id   String?   @db.LongText
+  dealer_id  String?   @db.LongText
+  deleted_at DateTime? @db.Timestamp(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model wash_and_care_instructions {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  title       String?   @db.VarChar(255)
+  description String?   @db.LongText
+  is_active   Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}
+
+model wash_and_care_instructions_by_brand {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  brand_id    BigInt?   @db.UnsignedBigInt
+  title       String?   @db.VarChar(255)
+  description String?   @db.LongText
+  is_active   Boolean   @default(true)
+  created_at  DateTime? @db.Timestamp(0)
+  updated_at  DateTime? @db.Timestamp(0)
+  deleted_at  DateTime? @db.Timestamp(0)
+}
+
+model webhook_logs {
+  id                BigInt                  @id @default(autoincrement()) @db.UnsignedBigInt
+  customizer_id     String?                 @db.VarChar(15)
+  status            Int                     @default(0)
+  grant_type        webhook_logs_grant_type
+  bearer_token      String?                 @db.LongText
+  callback_url      String?                 @db.LongText
+  payload           String?                 @db.LongText
+  webhook_client_id String?                 @db.VarChar(50)
+  webhook_secret    String?                 @db.VarChar(50)
+  access_token_url  String?                 @db.VarChar(255)
+  message           String?                 @db.LongText
+  deleted_at        DateTime?               @db.Timestamp(0)
+  created_at        DateTime?               @db.Timestamp(0)
+  updated_at        DateTime?               @db.Timestamp(0)
+}
+
+model weighted_factories {
+  id                          BigInt                        @id @default(autoincrement()) @db.UnsignedBigInt
+  month                       Int                           @db.UnsignedTinyInt
+  year                        Int                           @db.UnsignedSmallInt
+  factory_id                  Int                           @db.UnsignedInt
+  created_at                  DateTime?                     @db.Timestamp(0)
+  updated_at                  DateTime?                     @db.Timestamp(0)
+  deleted_at                  DateTime?                     @db.Timestamp(0)
+  master_factory              master_factory                @relation(fields: [factory_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "weighted_factories_factory_id_foreign")
+  weighted_factory_capacities weighted_factory_capacities[]
+
+  @@index([factory_id], map: "weighted_factories_factory_id_foreign")
+}
+
+model weighted_factory_capacities {
+  id                  BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  weighted_factory_id BigInt             @db.UnsignedBigInt
+  day                 Int                @db.UnsignedTinyInt
+  capacity            Int                @default(0)
+  rush_capacity       Int                @default(0)
+  created_at          DateTime?          @db.Timestamp(0)
+  updated_at          DateTime?          @db.Timestamp(0)
+  deleted_at          DateTime?          @db.Timestamp(0)
+  weighted_factories  weighted_factories @relation(fields: [weighted_factory_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "weighted_factory_capacities_weighted_factory_id_foreign")
+
+  @@index([weighted_factory_id], map: "weighted_factory_capacities_weighted_factory_id_foreign")
+}
+
+model weighted_factory_capacity_consumed {
+  id                  BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  factory_id          Int
+  brand_id            Int
+  order_id            String    @db.VarChar(255)
+  firm_ship_date      DateTime  @db.Date
+  weighted_allotments Int
+  user_id             Int
+  is_rush             Int       @default(0) @db.TinyInt
+  desired_date        DateTime? @db.Date
+  created_at          DateTime? @db.Timestamp(0)
+  updated_at          DateTime? @db.Timestamp(0)
+  deleted_at          DateTime? @db.Timestamp(0)
+}
+
+model weights_and_measurements {
+  id              BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  abbreviation    String?   @default("") @db.VarChar(255)
+  fullname        String?   @default("") @db.VarChar(255)
+  conversion_rate Decimal?  @db.Decimal(12, 6)
+  deleted_at      DateTime? @db.Timestamp(0)
+  created_at      DateTime? @db.Timestamp(0)
+  updated_at      DateTime? @db.Timestamp(0)
+}
+
+enum avg_item_difficulty_values_type {
+  Warm_Up_Pant  @map("Warm-Up Pant")
+  Socks
+  Jacket
+  Pant
+  Short
+  Warm_Up_Shirt @map("Warm-Up Shirt")
+  Jersey
+}
+
+enum webhook_logs_grant_type {
+  EMPTY_ENUM_VALUE   @map("")
+  bearer_token
+  client_credentials
+}

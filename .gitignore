@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+.env
+*.log
+
+# Prisma generated client
+/src/generated
+
+# Personal Claude Code instructions
+CLAUDE.local.md
+
+# TypeScript incremental build cache
+*.tsbuildinfo

@@ -1,0 +1,13 @@
+services:
+  mcp:
+    build: .
+    image: customizer-mcp
+    env_file: .env
+    environment:
+      # Reach the MySQL server running on the host machine (not in Docker).
+      DATABASE_HOST: host.docker.internal
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    ports:
+      - "${PORT:-3000}:3000"
+    restart: unless-stopped
