@@ -1,6 +1,7 @@
-import { All, Controller, Logger, Req, Res } from '@nestjs/common';
+import { All, Controller, Logger, Req, Res, UseGuards } from '@nestjs/common';
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import type { Request, Response } from 'express';
+import { BearerAuthGuard } from '../auth/bearer-auth.guard.js';
 import { McpService } from './mcp.service.js';
 
 const REQUIRED_ACCEPT = 'application/json, text/event-stream';
@@ -65,6 +66,7 @@ async function readBody(req: Request): Promise<unknown> {
 }
 
 @Controller('mcp')
+@UseGuards(BearerAuthGuard)
 export class McpController {
   private readonly logger = new Logger(McpController.name);
 
@@ -74,11 +76,14 @@ export class McpController {
   @All()
   async handle(@Req() req: Request, @Res() res: Response) {
     if (req.method !== 'POST') {
-      res.status(405).set('Allow', 'POST').json({
-        jsonrpc: '2.0',
-        error: { code: -32000, message: 'Method not allowed.' },
-        id: null,
-      });
+      res
+        .status(405)
+        .set('Allow', 'POST')
+        .json({
+          jsonrpc: '2.0',
+          error: { code: -32000, message: 'Method not allowed.' },
+          id: null,
+        });
       return;
     }
 
