@@ -42,6 +42,7 @@ The container connects to the MySQL server running on your host through `host.do
 | ---------------- | ----------------------------------------------------------------------------------- |
 | `list_tables`    | Lists tables with approximate row counts, with an optional name filter              |
 | `describe_table` | Shows the columns, types, nullability and keys of a table                           |
+| `get_brand_style`| Fetches one brand style by id, with its brand item codes, QStrike item ids and sizes; soft-deleted styles count as not found |
 | `query`          | Runs a single read-only SQL statement and returns at most 500 rows                  |
 
 `query` runs inside a `START TRANSACTION READ ONLY` transaction that is always rolled back, so MySQL rejects any write.

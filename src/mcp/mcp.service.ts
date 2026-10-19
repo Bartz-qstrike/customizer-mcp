@@ -1,37 +1,20 @@
 import { Injectable } from '@nestjs/common';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { StyleToolsService } from '../styles/style-tools.service.js';
 import { ReadOnlySqlService } from './read-only-sql.service.js';
+import { text } from './tool-result.js';
 
 const READ_ONLY_SQL = /^\s*(select|show|describe|desc|explain|with)\b/i;
 const MAX_ROWS = 500;
-
-// BigInt/Decimal/Date/Buffer values from the driver are not JSON-safe.
-function toJson(value: unknown): string {
-  return JSON.stringify(
-    value,
-    (_key, v: unknown) => {
-      if (typeof v === 'bigint') return v.toString();
-      if (v && typeof v === 'object' && 'type' in v && v.type === 'Buffer') {
-        return '<binary>';
-      }
-      return v;
-    },
-    2,
-  );
-}
-
-function text(value: unknown): CallToolResult {
-  return { content: [{ type: 'text', text: toJson(value) }] };
-}
 
 @Injectable()
 export class McpService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly sql: ReadOnlySqlService,
+    private readonly styleTools: StyleToolsService,
   ) {}
 
   // A fresh server per request keeps the HTTP transport stateless.
@@ -87,6 +70,8 @@ export class McpService {
         return text(columns);
       },
     );
+
+    this.styleTools.register(server);
 
     server.registerTool(
       'query',
