@@ -17,7 +17,8 @@ NestJS MCP server (Streamable HTTP, `POST /mcp`) exposing read-only tools over t
 
 ## Architecture gotchas
 - **SQL safety is enforced only in the app — the DB user can write.** The `query` tool's regex guard in `src/mcp/mcp.service.ts` plus `START TRANSACTION READ ONLY`/`ROLLBACK` in `src/mcp/read-only-sql.service.ts` are the only protection. Never add a code path that runs user-supplied SQL outside that guard.
-- All DB access is raw SQL (`$queryRaw` / `ReadOnlySqlService`); the generated Prisma models are unused.
+- Domain tool groups live in their own folder, not `src/mcp/`. Example: `src/styles/`, where `StyleToolsService.register(server)` is exported by `StylesModule`. Import the module into `McpModule` and call `register(server)` from `McpService.createServer()`. Shared result helpers (`text`, `toolError`) are in `src/mcp/tool-result.ts`.
+- DB access is mostly raw SQL (`$queryRaw` / `ReadOnlySqlService`). Fixed lookups like `get_brand_style` use the typed Prisma models (`this.prisma.<table>`). Prisma doesn't filter soft deletes, so add `deleted_at: null` yourself.
 - `src/main.ts` disables Nest's body parser. `src/mcp/mcp.controller.ts` reads the raw body itself, rewrites `Accept`/`Content-Type` (in both `req.headers` and `rawHeaders`) so Postman/curl work, and treats an empty body or `{}` as `tools/list`. Any new controller that needs a request body must parse it itself.
 - `/mcp` is protected by `BearerAuthGuard` (`src/auth/bearer-auth.guard.ts`, applied with `@UseGuards` on `McpController`) against `MCP_AUTH_TOKEN`. If that is unset, it allows all requests and warns at startup. `/health` is intentionally public. Guards run before the handler, so an unauthenticated `GET /mcp` returns 401, not 405.
 - The MCP transport is stateless (new server per request, `enableJsonResponse: true`); GET `/mcp` returns 405 by design.
