@@ -15,6 +15,7 @@ Connection settings are separate variables, not a `DATABASE_URL` (see `.env.exam
 | `DATABASE_NAME`     | required    |
 | `PORT`              | `3000`      |
 | `MCP_AUTH_TOKEN`    | _(empty)_ — see [Authentication](#authentication) |
+| `BRAND_ID`          | _(empty)_ — limits the brand style tools to one `master_brands.id`; empty = all brands (warning at startup) |
 
 - The app connects through `@prisma/adapter-mariadb` using these values directly (`src/prisma/prisma.service.ts`).
 - The Prisma CLI gets a connection string that `prisma.config.ts` builds from the same values (`src/database.config.ts`).
@@ -38,14 +39,17 @@ The container connects to the MySQL server running on your host through `host.do
 
 ## MCP tools
 
-| Tool             | Description                                                                         |
-| ---------------- | ----------------------------------------------------------------------------------- |
-| `list_tables`    | Lists tables with approximate row counts, with an optional name filter              |
-| `describe_table` | Shows the columns, types, nullability and keys of a table                           |
-| `get_brand_style`| Fetches one brand style by id, with its brand item codes, QStrike item ids and sizes; soft-deleted styles count as not found |
-| `query`          | Runs a single read-only SQL statement and returns at most 500 rows                  |
+| Tool | Description |
+| ---- | ----------- |
+| `get_brand_style` | Fetches one brand style by id, with its brand item codes, QStrike item ids and sizes |
+| `search_brand_styles` | Finds brand styles by `sport`, `uniform_type`, `color` and/or `block_name` (combined with AND); returns the 5 most relevant as `id - style_name - front thumbnail` |
+| `list_tables` | Lists tables with approximate row counts. Debugging only: registered only when `ENABLE_RAW_SQL_TOOLS=true` |
+| `describe_table` | Shows a table's columns, types, nullability and keys. Debugging only (`ENABLE_RAW_SQL_TOOLS=true`) |
+| `query` | Runs one read-only SQL statement, at most 500 rows. Debugging only (`ENABLE_RAW_SQL_TOOLS=true`) |
 
-`query` runs inside a `START TRANSACTION READ ONLY` transaction that is always rolled back, so MySQL rejects any write.
+- **Brand:** `get_brand_style` and `search_brand_styles` only return styles of the brand in `BRAND_ID`. `query` is not brand-filtered.
+- **Failures:** if a tool can't answer (invalid input, nothing found or a database error), it returns only `We are not able to process this request.` The real error is logged on the server, never returned to the client.
+- **Raw SQL tools:** with `ENABLE_RAW_SQL_TOOLS` off (the default), clients only see the two brand style tools and can't query the database directly. When it's on, `query` runs inside a `START TRANSACTION READ ONLY` transaction that is always rolled back, so MySQL rejects any write.
 
 ## Authentication
 
