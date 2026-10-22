@@ -29,6 +29,10 @@ NestJS MCP server (Streamable HTTP, `POST /mcp`) exposing read-only tools over t
   - Uniform type: the view's `style_category_name`.
   - Color: `default_color` names inside `brand_styles.body_part_color_groups` / `body_part_group_default_colors` (JSON arrays).
   - Block: `brand_styles.brand_block_id` → `block_pattern_brand_rules.product_name`, then `.block_pattern_rule_id` → `block_pattern_rules.block_pattern_name`.
+  - Gender: `block_pattern_rules.spec_sheet_id` → `spec_sheet_list.gender_id` (a JSON array of `master_genders.id` strings) → `master_genders`. See `GENDER_CONDITIONS`:
+    - `youth` / `adult` match on `gender_category`.
+    - The specific values also match their category's unisex row.
+    - Don't alias `spec_sheet_list` as `ssl`; it's a reserved word.
 - Both style tools filter on `BRAND_ID`, read once in the `StyleToolsService` constructor:
   - Empty → all brands, plus a startup warning.
   - Not a positive integer → startup error.

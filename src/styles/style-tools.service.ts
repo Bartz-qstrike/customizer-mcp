@@ -51,6 +51,20 @@ function textFilter(description: string) {
     .meta(advertised(description));
 }
 
+// Gender filter values → conditions on master_genders (alias `mg`). Broad
+// terms use gender_category; specific ones also take their category's unisex
+// row (Men & Women / Boys & Girls). Constants only, no user input in the SQL.
+const GENDER_CONDITIONS = {
+  men: Prisma.sql`mg.gender = 'Men' OR (mg.unisex = 1 AND mg.gender_category = 'Adult')`,
+  women: Prisma.sql`mg.gender = 'Women' OR (mg.unisex = 1 AND mg.gender_category = 'Adult')`,
+  boys: Prisma.sql`mg.gender = 'Boys' OR (mg.unisex = 1 AND mg.gender_category = 'Youth')`,
+  girls: Prisma.sql`mg.gender = 'Girls' OR (mg.unisex = 1 AND mg.gender_category = 'Youth')`,
+  youth: Prisma.sql`mg.gender_category = 'Youth'`,
+  adult: Prisma.sql`mg.gender_category = 'Adult'`,
+};
+type Gender = keyof typeof GENDER_CONDITIONS;
+const GENDERS = Object.keys(GENDER_CONDITIONS) as [Gender, ...Gender[]];
+
 // MCP tools for brand styles. McpService calls register() on each new server.
 // BRAND_ID limits both tools to one brand (master_brands.id); empty = all.
 @Injectable()
@@ -117,7 +131,7 @@ export class StyleToolsService {
       'search_brand_styles',
       {
         title: 'Search brand styles',
-        description: `Find brand styles by style name, sport, uniform type, color and/or block name. Filters are optional but at least one is required; they combine with AND. Text filters are case-insensitive partial matches, except color, which must equal a default color name (e.g. "Black"). Returns the ${TOP_N} most relevant matches, one per line, as "id - style_name - front thumbnail": exact name matches rank first, then customizer-ready styles, then the most recently updated. Soft-deleted rows are excluded. Show the user the returned lines exactly as given, one per line, in the format "brand style id - brand style name - front thumbnail". Do not add other fields, summaries or extra details, and do not call other tools to enrich the results unless the user explicitly asks for more.${BRAND_NOTE}${FAILURE_NOTE}`,
+        description: `Find brand styles by style name, sport, uniform type, gender, color and/or block name. Filters are optional but at least one is required; they combine with AND. Text filters are case-insensitive partial matches, except color, which must equal a default color name (e.g. "Black"). Returns the ${TOP_N} most relevant matches, one per line, as "id - style_name - front thumbnail": exact name matches rank first, then customizer-ready styles, then the most recently updated. Soft-deleted rows are excluded. Show the user the returned lines exactly as given, one per line, in the format "brand style id - brand style name - front thumbnail". Do not add other fields, summaries or extra details, and do not call other tools to enrich the results unless the user explicitly asks for more.${BRAND_NOTE}${FAILURE_NOTE}`,
         inputSchema: {
           style_name: textFilter(
             'Brand style name, matched against brand_styles.brand_style_name',
@@ -128,6 +142,15 @@ export class StyleToolsService {
           uniform_type: textFilter(
             'Uniform type, matched against the style category name',
           ),
+          gender: z
+            .enum(GENDERS)
+            .optional()
+            .catch(INVALID_INPUT as Gender)
+            .meta(
+              advertised(
+                "Gender from the block's spec sheet (master_genders): men, women, boys, girls, youth or adult. youth/adult cover every gender in that category; men/women also match Men & Women, boys/girls also match Boys & Girls",
+              ),
+            ),
           color: textFilter(
             'Default color name in body_part_color_groups or body_part_group_default_colors',
           ),
@@ -138,8 +161,16 @@ export class StyleToolsService {
         annotations: { readOnlyHint: true },
       },
       guarded(this.logger, 'search_brand_styles', async (args) => {
-        const { style_name, sport, uniform_type, color, block_name } = args;
-        const values = [style_name, sport, uniform_type, color, block_name];
+        const { style_name, sport, uniform_type, gender, color, block_name } =
+          args;
+        const values = [
+          style_name,
+          sport,
+          uniform_type,
+          gender,
+          color,
+          block_name,
+        ];
         if (values.includes(INVALID_INPUT) || values.every((v) => !v)) {
           return unableToProcess();
         }
@@ -162,6 +193,17 @@ export class StyleToolsService {
           score.push(
             Prisma.sql`2 * IFNULL(bs.brand_style_name = ${style_name}, 0)`,
           );
+        }
+        if (gender) {
+          // spec_sheet_list.gender_id is a JSON array of master_genders ids as
+          // strings, e.g. ["32","13"]. (`ssl` is reserved in MySQL, hence `sl`.)
+          filters.push(Prisma.sql`EXISTS (
+            SELECT 1 FROM spec_sheet_list sl
+            JOIN master_genders mg
+              ON mg.deleted_at IS NULL
+             AND JSON_CONTAINS(sl.gender_id, JSON_QUOTE(CAST(mg.id AS CHAR)))
+            WHERE sl.id = bpr.spec_sheet_id AND sl.deleted_at IS NULL
+              AND (${GENDER_CONDITIONS[gender]}))`);
         }
 
         // The view is JSON_TABLE over brand_styles and can't be indexed, so
