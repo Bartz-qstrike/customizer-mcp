@@ -117,8 +117,11 @@ export class StyleToolsService {
       'search_brand_styles',
       {
         title: 'Search brand styles',
-        description: `Find brand styles by sport, uniform type, color and/or block name. Filters are optional but at least one is required; they combine with AND. Text filters are case-insensitive partial matches, except color, which must equal a default color name (e.g. "Black"). Returns the ${TOP_N} most relevant matches, one per line, as "id - style_name - front thumbnail": exact name matches rank first, then customizer-ready styles, then the most recently updated. Soft-deleted rows are excluded. Show the user the returned lines exactly as given, one per line, in the format "brand style id - brand style name - front thumbnail". Do not add other fields, summaries or extra details, and do not call other tools to enrich the results unless the user explicitly asks for more.${BRAND_NOTE}${FAILURE_NOTE}`,
+        description: `Find brand styles by style name, sport, uniform type, color and/or block name. Filters are optional but at least one is required; they combine with AND. Text filters are case-insensitive partial matches, except color, which must equal a default color name (e.g. "Black"). Returns the ${TOP_N} most relevant matches, one per line, as "id - style_name - front thumbnail": exact name matches rank first, then customizer-ready styles, then the most recently updated. Soft-deleted rows are excluded. Show the user the returned lines exactly as given, one per line, in the format "brand style id - brand style name - front thumbnail". Do not add other fields, summaries or extra details, and do not call other tools to enrich the results unless the user explicitly asks for more.${BRAND_NOTE}${FAILURE_NOTE}`,
         inputSchema: {
+          style_name: textFilter(
+            'Brand style name, matched against brand_styles.brand_style_name',
+          ),
           sport: textFilter(
             'Sport name, matched against master_sports.sport_name',
           ),
@@ -135,8 +138,8 @@ export class StyleToolsService {
         annotations: { readOnlyHint: true },
       },
       guarded(this.logger, 'search_brand_styles', async (args) => {
-        const { sport, uniform_type, color, block_name } = args;
-        const values = [sport, uniform_type, color, block_name];
+        const { style_name, sport, uniform_type, color, block_name } = args;
+        const values = [style_name, sport, uniform_type, color, block_name];
         if (values.includes(INVALID_INPUT) || values.every((v) => !v)) {
           return unableToProcess();
         }
@@ -152,6 +155,14 @@ export class StyleToolsService {
           Prisma.sql`(bs.customizer_available = 1)`,
           Prisma.sql`(COALESCE(bs.complete, 0) > 0)`,
         ];
+        if (style_name) {
+          filters.push(
+            Prisma.sql`bs.brand_style_name LIKE ${contains(style_name)}`,
+          );
+          score.push(
+            Prisma.sql`2 * IFNULL(bs.brand_style_name = ${style_name}, 0)`,
+          );
+        }
 
         // The view is JSON_TABLE over brand_styles and can't be indexed, so
         // sport and uniform type are resolved in one grouped pass over it
