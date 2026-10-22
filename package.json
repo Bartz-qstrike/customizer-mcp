@@ -6,8 +6,15 @@
   "private": true,
   "license": "UNLICENSED",
   "type": "module",
+  "bin": {
+    "style-mcp": "dist/stdio.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "nest build",
+    "prepare": "DATABASE_NAME=${DATABASE_NAME:-build} prisma generate && nest build",
     "deploy": "nest deploy",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",

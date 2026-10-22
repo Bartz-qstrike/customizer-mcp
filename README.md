@@ -92,6 +92,35 @@ claude mcp add --transport sse customizer-sse http://localhost:3000/sse \
   --header "Authorization: Bearer <token>"
 ```
 
+## Claude Desktop from GitHub (stdio, no Docker)
+
+Claude Desktop can install and run the server straight from this repo. It launches the `style-mcp` command as a local process and talks to it over stdio, so there's no HTTP server and no bearer token. Add this to `claude_desktop_config.json` and restart Claude Desktop:
+
+```json
+{
+  "mcpServers": {
+    "style-mcp": {
+      "command": "npx",
+      "args": ["-y", "--package=git+https://github.com/Bartz-qstrike/customizer-mcp", "style-mcp"],
+      "env": {
+        "DATABASE_HOST": "127.0.0.1",
+        "DATABASE_PORT": "3306",
+        "DATABASE_USER": "<user>",
+        "DATABASE_PASSWORD": "<password>",
+        "DATABASE_NAME": "QX7",
+        "BRAND_ID": "3"
+      }
+    }
+  }
+}
+```
+
+- npx installs the repo's **default branch** (`main`). Append `#<branch>` to the URL to use another one.
+- **The first launch is slow.** npm clones the repo, installs dependencies, and runs `prepare` (`prisma generate` + `nest build`).
+- **npx caches the install,** so later launches are fast. To pick up new commits, clear the cache with `rm -rf ~/.npm/_npx` and restart Claude Desktop.
+- If Claude Desktop can't find `npx` (e.g. Node from nvm/Herd), set `"command"` to the full path from `which npx`.
+- Logs go to stderr, which Claude Desktop writes to `~/Library/Logs/Claude/mcp-server-style-mcp.log`.
+
 ## Schema
 
 `prisma/schema.prisma` was introspected from `QX7`. Run `npm run prisma:pull` to refresh it, then run `npm run prisma:generate`. Prisma skipped five tables that have no primary key: `brand_item_code_master_sizes`, `master_price_item_brand_item_codes`, `team_dealer_user`, `telescope_entries_tags` and `telescope_monitoring`. The raw-SQL tools can still query them.
