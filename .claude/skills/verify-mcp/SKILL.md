@@ -24,6 +24,9 @@ Verify the running server end to end. Run steps in order and stop at the first f
    | 6 | `GET /mcp` with auth | 405 |
    | 7 | `POST /mcp` with no auth header | 401, code `-32001`, `WWW-Authenticate: Bearer` header |
    | 8 | `POST /mcp` with `Authorization: Bearer wrong` | 401 |
+   | 9 | `GET /sse` with auth (`curl -N -m 3`) | 200 `text/event-stream`, first event `endpoint` with `data: /messages?sessionId=…` |
+   | 10 | `GET /sse` with no auth header | 401 |
+   | 11 | `POST /messages?sessionId=nope` with auth | 404, code `-32001` |
 
    If $ARGUMENTS names a tool or a change, add one request that exercises it.
 6. **Report** a pass/fail table. For any failure, include `docker compose logs --tail 50 mcp`.

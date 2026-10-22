@@ -1,6 +1,11 @@
 # customizer-mcp
 
-An MCP (Model Context Protocol) server built with NestJS, Prisma 7, and MySQL (`QX7`). It is exposed over Streamable HTTP at `POST /mcp`.
+An MCP (Model Context Protocol) server built with NestJS, Prisma 7, and MySQL (`QX7`). It's served over two MCP transports, with the same tools and auth on both:
+
+| Transport | Endpoint(s) | Notes |
+| --- | --- | --- |
+| Streamable HTTP (recommended) | `POST /mcp` | Stateless, plain JSON replies |
+| HTTP+SSE (legacy) | `GET /sse` opens the stream; the client then POSTs to `/messages?sessionId=…` | For clients that only speak SSE. Responses arrive on the stream, sessions are held in memory, and it's deprecated in the MCP spec |
 
 ## Configuration
 
@@ -79,6 +84,13 @@ To connect from Claude Desktop, add this to `claude_desktop_config.json`. `mcp-r
 ```
 
 In Postman, open the **Authorization** tab, choose **Bearer Token**, and paste the token.
+
+To connect over SSE instead, point the client at `/sse` with the same header. For example, in Claude Code:
+
+```bash
+claude mcp add --transport sse customizer-sse http://localhost:3000/sse \
+  --header "Authorization: Bearer <token>"
+```
 
 ## Schema
 
