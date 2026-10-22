@@ -1,48 +1,56 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import type { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
 import { z } from 'zod';
 import { PrismaService } from '../prisma/prisma.service.js';
+import { StyleToolsService } from '../styles/style-tools.service.js';
 import { ReadOnlySqlService } from './read-only-sql.service.js';
+import { guarded, text } from './tool-result.js';
 
 const READ_ONLY_SQL = /^\s*(select|show|describe|desc|explain|with)\b/i;
 const MAX_ROWS = 500;
 
-// BigInt/Decimal/Date/Buffer values from the driver are not JSON-safe.
-function toJson(value: unknown): string {
-  return JSON.stringify(
-    value,
-    (_key, v: unknown) => {
-      if (typeof v === 'bigint') return v.toString();
-      if (v && typeof v === 'object' && 'type' in v && v.type === 'Buffer') {
-        return '<binary>';
-      }
-      return v;
-    },
-    2,
-  );
-}
-
-function text(value: unknown): CallToolResult {
-  return { content: [{ type: 'text', text: toJson(value) }] };
-}
+// Sent to clients in `initialize`; Claude adds it to the model's context.
+const SERVER_INSTRUCTIONS =
+  'When showing brand style search results, list each style only as "brand style id - brand style name - front thumbnail", exactly as search_brand_styles returns them. Do not add other data or fetch details with other tools unless the user asks. If a tool answers \'We are not able to process this request.\', relay that message and do not look for the data any other way.';
 
 @Injectable()
 export class McpService {
+  private readonly logger = new Logger(McpService.name);
+  // list_tables/describe_table/query give direct DB access, so they're only
+  // registered for debugging; clients otherwise can't bypass the style tools.
+  private readonly rawSqlTools: boolean;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly sql: ReadOnlySqlService,
-  ) {}
+    private readonly styleTools: StyleToolsService,
+    config: ConfigService,
+  ) {
+    this.rawSqlTools = config.get<string>('ENABLE_RAW_SQL_TOOLS') === 'true';
+  }
 
   // A fresh server per request keeps the HTTP transport stateless.
   createServer(): McpServer {
-    const server = new McpServer({ name: 'customizer-mcp', version: '0.0.1' });
+    const server = new McpServer(
+      { name: 'customizer-mcp', version: '0.0.1' },
+      { instructions: SERVER_INSTRUCTIONS },
+    );
 
+    this.styleTools.register(server);
+    if (this.rawSqlTools) {
+      this.registerRawSqlTools(server);
+    }
+    return server;
+  }
+
+  private registerRawSqlTools(server: McpServer) {
     server.registerTool(
       'list_tables',
       {
         title: 'List tables',
-        description: 'List tables in the QX7 database with approximate row counts.',
+        description:
+          'List tables in the QX7 database with approximate row counts.',
         inputSchema: {
           filter: z
             .string()
@@ -50,7 +58,7 @@ export class McpService {
             .describe('Optional substring to match table names'),
         },
       },
-      async ({ filter }) => {
+      guarded(this.logger, 'list_tables', async ({ filter }) => {
         const rows = await this.prisma.$queryRaw<
           { table_name: string; table_rows: bigint | null }[]
         >`
@@ -60,7 +68,7 @@ export class McpService {
             AND TABLE_NAME LIKE ${`%${filter ?? ''}%`}
           ORDER BY TABLE_NAME`;
         return text(rows);
-      },
+      }),
     );
 
     server.registerTool(
@@ -70,7 +78,7 @@ export class McpService {
         description: 'Show columns, types, nullability and keys for a table.',
         inputSchema: { table: z.string().describe('Table name') },
       },
-      async ({ table }) => {
+      guarded(this.logger, 'describe_table', async ({ table }) => {
         const columns = await this.prisma.$queryRaw`
           SELECT COLUMN_NAME AS name, COLUMN_TYPE AS type,
                  IS_NULLABLE AS nullable, COLUMN_KEY AS \`key\`,
@@ -85,7 +93,7 @@ export class McpService {
           };
         }
         return text(columns);
-      },
+      }),
     );
 
     server.registerTool(
@@ -96,7 +104,7 @@ export class McpService {
         inputSchema: { sql: z.string().describe('The SQL statement') },
         annotations: { readOnlyHint: true },
       },
-      async ({ sql }) => {
+      guarded(this.logger, 'query', async ({ sql }) => {
         const statement = sql.trim().replace(/;\s*$/, '');
         if (!READ_ONLY_SQL.test(statement) || statement.includes(';')) {
           return {
@@ -115,9 +123,7 @@ export class McpService {
           truncated: rows.length > MAX_ROWS,
           rows: rows.slice(0, MAX_ROWS),
         });
-      },
+      }),
     );
-
-    return server;
   }
 }
