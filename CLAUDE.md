@@ -41,7 +41,13 @@ NestJS MCP server (Streamable HTTP, `POST /mcp`) exposing read-only tools over t
 - DB access is mostly raw SQL (`$queryRaw` / `ReadOnlySqlService`). Fixed lookups like `get_brand_style` use the typed Prisma models (`this.prisma.<table>`). Prisma doesn't filter soft deletes, so add `deleted_at: null` yourself.
 - `src/main.ts` disables Nest's body parser. `src/mcp/mcp.controller.ts` reads the raw body itself, rewrites `Accept`/`Content-Type` (in both `req.headers` and `rawHeaders`) so Postman/curl work, and treats an empty body or `{}` as `tools/list`. Any new controller that needs a request body must parse it itself.
 - `/mcp` is protected by `BearerAuthGuard` (`src/auth/bearer-auth.guard.ts`, applied with `@UseGuards` on `McpController`) against `MCP_AUTH_TOKEN`. If that is unset, it allows all requests and warns at startup. `/health` is intentionally public. Guards run before the handler, so an unauthenticated `GET /mcp` returns 401, not 405.
-- There are two transports, sharing the tools (`McpService.createServer()`), the bearer auth and the body helpers (`src/mcp/http-request.ts`):
+- **stdio transport:** `src/stdio.ts` is the `style-mcp` bin that Claude Desktop runs via `npx --package=git+https://github.com/Bartz-qstrike/customizer-mcp style-mcp`.
+  - It's a Nest application context: no HTTP and no bearer auth, with the same `McpService.createServer()`.
+  - **Nothing may write to stdout** in that mode. `StderrLogger` sends Nest logs to stderr; never add `console.log`.
+  - Git installs build through the `prepare` script (`prisma generate` with a dummy `DATABASE_NAME`, then `nest build`).
+  - `"files": ["dist"]` keeps the build in the package, because npm would otherwise pack by `.gitignore`.
+  - The Dockerfile runs `npm ci --ignore-scripts` so `prepare` doesn't fire before the source is copied in.
+- There are two HTTP transports, sharing the tools (`McpService.createServer()`), the bearer auth and the body helpers (`src/mcp/http-request.ts`):
   - **Streamable HTTP**, `src/mcp/mcp.controller.ts`, at `POST /mcp`. Stateless: a new server per request, with `enableJsonResponse: true`. GET `/mcp` returns 405 by design.
   - **Legacy HTTP+SSE**, `src/mcp/sse.controller.ts`. `GET /sse` opens a stream (with a 25 s heartbeat) and announces `POST /messages?sessionId=…`; that POST returns 202, and the reply goes out on the stream. Sessions live in an in-memory map, so run one instance (no load balancing without sticky sessions). The SDK marks `SSEServerTransport` deprecated.
 - In Docker, MySQL runs on the host: compose overrides `DATABASE_HOST` to `host.docker.internal`. The container always listens on 3000; `PORT` only changes the host port.
