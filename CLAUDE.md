@@ -24,6 +24,7 @@ NestJS MCP server (Streamable HTTP, `POST /mcp`) exposing read-only tools over t
 - **SQL safety is enforced only in the app — the DB user can write.** The `query` tool's regex guard in `src/mcp/mcp.service.ts` plus `START TRANSACTION READ ONLY`/`ROLLBACK` in `src/mcp/read-only-sql.service.ts` are the only protection. Never add a code path that runs user-supplied SQL outside that guard.
 - Domain tool groups live in their own folder, not `src/mcp/`. Example: `src/styles/`, where `StyleToolsService.register(server)` is exported by `StylesModule`. Import the module into `McpModule` and call `register(server)` from `McpService.createServer()`. Shared result helpers (`text`, `toolError`) are in `src/mcp/tool-result.ts`.
 - Brand style lookups use these join paths (`search_brand_styles`):
+  - Style name: `brand_styles.brand_style_name` (partial match; exact names rank first).
   - Sport: `master_sports.id` = `brand_style_sport_product_info_view.sport`, and the view's `id` = `brand_styles.id`.
   - Uniform type: the view's `style_category_name`.
   - Color: `default_color` names inside `brand_styles.body_part_color_groups` / `body_part_group_default_colors` (JSON arrays).
