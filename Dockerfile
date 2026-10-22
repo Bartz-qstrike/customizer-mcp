@@ -3,7 +3,7 @@
 FROM node:22-alpine AS build
 WORKDIR /app
 COPY package.json package-lock.json .npmrc ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 COPY . .
 # prisma.config.ts requires DATABASE_NAME to load; generate never connects.
 RUN DATABASE_NAME=build npx prisma generate && npm run build && npm prune --omit=dev
