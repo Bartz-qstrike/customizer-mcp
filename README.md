@@ -47,7 +47,7 @@ The container connects to the MySQL server running on your host through `host.do
 | Tool | Description |
 | ---- | ----------- |
 | `get_brand_style` | Fetches one brand style by id, with its brand item codes, QStrike item ids and sizes |
-| `search_brand_styles` | Finds brand styles by `style_name`, `sport`, `uniform_type`, `gender` (`men`, `women`, `boys`, `girls`, `youth`, `adult`), `color` and/or `block_name` (combined with AND); returns the 5 most relevant as `id - style_name - front thumbnail` |
+| `search_brand_styles` | Finds brand styles by `style_name`, `sport`, `uniform_type`, `gender` (`men`, `women`, `boys`, `girls`, `youth`, `adult`), `color`, `body_part` and/or `block_name` (combined with AND). `color` matches the default color of `body_part`, or of the **Body** when no body part is given (`Body` or `Body - <fabric>`, not stripes or graphics); returns the single most relevant style as `id - style_name - front thumbnail`, followed by its body parts and their default colors. Filters are never loosened: if no style meets every condition, it says so and returns a `BLANK` style of the requested uniform type (and sport, when one exists; any `BLANK` if no uniform type was given) |
 | `list_tables` | Lists tables with approximate row counts. Debugging only: registered only when `ENABLE_RAW_SQL_TOOLS=true` |
 | `describe_table` | Shows a table's columns, types, nullability and keys. Debugging only (`ENABLE_RAW_SQL_TOOLS=true`) |
 | `query` | Runs one read-only SQL statement, at most 500 rows. Debugging only (`ENABLE_RAW_SQL_TOOLS=true`) |
