@@ -17,7 +17,7 @@ Verify the running server end to end. Run steps in order and stop at the first f
    |---|---|---|
    | 1 | `GET /health` (no auth) | 200 `{"status":"ok","database":"up"}` |
    | 2 | `POST /mcp` with auth, no body | 200, `result.tools` |
-   | 3 | `POST /mcp` with auth, `Content-Type: text/plain` and body `{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"search_brand_styles","arguments":{"color":"Black"}}}` | 200, text is `id - name - link` lines |
+   | 3 | `POST /mcp` with auth, `Content-Type: text/plain` and body `{"jsonrpc":"2.0","id":2,"method":"tools/call","params":{"name":"search_brand_styles","arguments":{"color":"Black"}}}` | 200, one `id - name - link` line, then `Body parts:` with `- <group>: <color>` lines (or `Body parts: none`) |
    | 3b | `POST /mcp` with auth, `tools/call` `get_brand_style` with `{"id":-1}` | 200, `isError`, text is exactly `We are not able to process this request.` |
    | 4 | `POST /mcp` with auth, `Content-Type: application/json`, `Accept: application/json, text/event-stream` and an `initialize` request (`protocolVersion` `2025-06-18`) | 200, `serverInfo.name` = `customizer-mcp` |
    | 5 | `POST /mcp` with auth and `-d 'not json'` | 400, code `-32700` |
