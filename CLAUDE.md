@@ -27,7 +27,11 @@ NestJS MCP server (Streamable HTTP, `POST /mcp`) exposing read-only tools over t
   - Style name: `brand_styles.brand_style_name` (partial match; exact names rank first).
   - Sport: `master_sports.id` = `brand_style_sport_product_info_view.sport`, and the view's `id` = `brand_styles.id`.
   - Uniform type: the view's `style_category_name`.
-  - Color: `default_color` names inside `brand_styles.body_part_color_groups` / `body_part_group_default_colors` (JSON arrays).
+  - When both are given, sport and uniform type must match on the **same** view row (`viewFilter()`). Otherwise a style that's a Jersey for one sport and a Short for another would count as a Jersey of either.
+  - Color + body part: a `default_color` in `body_part_group_default_colors` (part name in `body_part_group`) or `body_part_color_groups` (`body_part_group_name`), read with `JSON_TABLE` in `hasBodyPart()`.
+    - The color must be on the requested `body_part`, which defaults to `DEFAULT_BODY_PART` ("Body"), never any part.
+    - A part matches its exact name or a `<part> - <fabric>` variant, so "Body" doesn't match "Body Stripe 1" or "Front Body".
+    - JSON_TABLE `PATH`s must be literals, so they're built with `Prisma.raw` from constants.
   - Block: `brand_styles.brand_block_id` → `block_pattern_brand_rules.product_name`, then `.block_pattern_rule_id` → `block_pattern_rules.block_pattern_name`.
   - Gender: `block_pattern_rules.spec_sheet_id` → `spec_sheet_list.gender_id` (a JSON array of `master_genders.id` strings) → `master_genders`. See `GENDER_CONDITIONS`:
     - `youth` / `adult` match on `gender_category`.
@@ -37,7 +41,17 @@ NestJS MCP server (Streamable HTTP, `POST /mcp`) exposing read-only tools over t
   - Empty → all brands, plus a startup warning.
   - Not a positive integer → startup error.
   - The raw `query` tool is **not** brand-filtered.
-- `search_brand_styles` output is deliberately just `id - name - front thumbnail` lines. The rule that clients shouldn't add other data lives in its tool description and in `SERVER_INSTRUCTIONS` (`src/mcp/mcp.service.ts`); keep the two in sync.
+- `search_brand_styles` returns only the single best match:
+  - an `id - name - front thumbnail` line, then `Body parts:` with `- <group>: <default color>` lines;
+  - the parts come from `body_part_group_default_colors` (panels) and `body_part_color_groups` (trims), merged by `sort_order`, via `bodyParts()`;
+  - styles that have body part data rank first.
+  - **Filters are never loosened.** When nothing matches, `findBlank()` returns a style named exactly `BLANK`, after the `noMatchNote()` line "No style matches all the conditions (…)". This answer is plain text, not `isError`. The BLANK is chosen in this order:
+    - uniform type + sport;
+    - then uniform type alone;
+    - or any BLANK when no uniform type was given.
+  - Only invalid input, or no BLANK at all, gives `UNABLE_TO_PROCESS`.
+
+  The rule that clients shouldn't add other data lives in its tool description and in `SERVER_INSTRUCTIONS` (`src/mcp/mcp.service.ts`); keep the two in sync.
 - DB access is mostly raw SQL (`$queryRaw` / `ReadOnlySqlService`). Fixed lookups like `get_brand_style` use the typed Prisma models (`this.prisma.<table>`). Prisma doesn't filter soft deletes, so add `deleted_at: null` yourself.
 - `src/main.ts` disables Nest's body parser. `src/mcp/mcp.controller.ts` reads the raw body itself, rewrites `Accept`/`Content-Type` (in both `req.headers` and `rawHeaders`) so Postman/curl work, and treats an empty body or `{}` as `tools/list`. Any new controller that needs a request body must parse it itself.
 - `/mcp` is protected by `BearerAuthGuard` (`src/auth/bearer-auth.guard.ts`, applied with `@UseGuards` on `McpController`) against `MCP_AUTH_TOKEN`. If that is unset, it allows all requests and warns at startup. `/health` is intentionally public. Guards run before the handler, so an unauthenticated `GET /mcp` returns 401, not 405.

@@ -12,7 +12,7 @@ const MAX_ROWS = 500;
 
 // Sent to clients in `initialize`; Claude adds it to the model's context.
 const SERVER_INSTRUCTIONS =
-  'When showing brand style search results, list each style only as "brand style id - brand style name - front thumbnail", exactly as search_brand_styles returns them. Do not add other data or fetch details with other tools unless the user asks. If a tool answers \'We are not able to process this request.\', relay that message and do not look for the data any other way.';
+  'When showing a brand style search result, show it exactly as search_brand_styles returns it: the "brand style id - brand style name - front thumbnail" line followed by its body parts and default colors. Do not add other data or fetch details with other tools unless the user asks. A color without a body part is matched against the style\'s Body color; only pass body_part when the user names one. Pass every condition from the user\'s request to search_brand_styles as a filter, and never drop, loosen or change filters and search again to get a result. If the result says "No style matches all the conditions", tell the user that and show the blank style exactly as returned. If a tool answers \'We are not able to process this request.\', relay that message and do not look for the data any other way.';
 
 @Injectable()
 export class McpService {
